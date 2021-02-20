@@ -25,7 +25,12 @@ To install the package and have a copy of the code to edit locally, navigate to 
 ```
 git clone https://github.com/Kleen-Lab/OPSCEA.git
 ```
-Note that you will have to configure paths in the code to wherever your data is stored. Paths to sample data (located in 'x' location) are included by default.
+Note that you will have to configure paths in the code to wherever your data is stored. Recommended to store data folder in same location as this repository.
+
+### 4. Download sample data (optional)
+Sample data to make practice videos is available for download on OSF in a zip file called OPSCEADATA.zip (https://osf.io/49znp/). 
+
+Once downloaded, unzip file and move it to the same folder as the code from this repo. The paths in the software default to using the sample data in this location.
 
 ## References.
 -Philipp Berens (2021). Circular Statistics Toolbox (Directional Statistics) (https://www.mathworks.com/matlabcentral/fileexchange/10676-circular-statistics-toolbox-directional-statistics), MATLAB Central File Exchange. Retrieved February 12, 2021.
