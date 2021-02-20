@@ -23,7 +23,7 @@ No other dependencies.
 ### 3. Installation
 To install the package and have a copy of the code to edit locally, navigate to where you would like to store the package code in your terminal. Clone the package.
 ```
-git clone https://github.com/Kleen-Lab/test-opscea3-for-paper.git
+git clone https://github.com/Kleen-Lab/OPSCEA.git
 ```
 Note that you will have to configure paths in the code to wherever your data is stored. Paths to sample data (located in 'x' location) are included by default.
 
