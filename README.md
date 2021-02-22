@@ -14,7 +14,7 @@ The `OPSCEA` MATLAB package. All code included to generate a video of ictal acti
 ## Package setup.
 ### 1. Required Software
 
-Must have MATLAB (r2019a?) or newer installed with Image Processing Toolbox.
+Must have MATLAB (r2019a) or newer installed with Image Processing Toolbox. (note: has not been tested with previous MATLAB versions)
 
 ### 2. Other dependencies
 
