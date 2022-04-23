@@ -30,7 +30,7 @@ function OPSCEA(pt,sz,showlabels,jumpto)
 %     herein as appropriate (img_pipe, FreeSurfer): Kleen JK, Speidel B,
 %     Baud MO, Rao VR, Ammanuel SG, Hamilton LS, Chang EF, Knowlton RC.
 %     Accuracy of omni-planar and surface casting of epileptiform activity
-%     for intracranial seizure localization. In press at Epilepsia.”
+%     for intracranial seizure localization. Epilepsia. 2021;62(4):947-959.”
 
 if ~exist('showlabels','var')||isempty(showlabels); showlabels=true; end %default displays ICEEG and depth labels
 if ~exist('jumpto','var')||isempty(jumpto); jumpto=0; end 
