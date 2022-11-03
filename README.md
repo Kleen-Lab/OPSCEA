@@ -7,7 +7,8 @@ The following copyright notice and citation is to be included in any publicat
 
 Please cite the following paper in your publications if you have used our software in your research, as well as any relevant toolboxes used herein as appropriate (img_pipe, FreeSurfer): 
 
-Kleen JK, Speidel B, Baud MO, Rao VR, Ammanuel SG, Hamilton LS, Chang EF, Knowlton RC. "Accuracy of omni-planar and surface casting of epileptiform activity for intracranial seizure localization." Epilepsia. 2021 Apr;62(4):947-959. (doi.org/10.1111/epi.16841)
+Kleen JK, Speidel B, Baud MO, Rao VR, Ammanuel SG, Hamilton LS, Chang EF, Knowlton RC. "Accuracy of omni-planar and surface casting of epileptiform activity for intracranial seizure localization." Epilepsia. 2021 Apr;62(4):947-959. doi.org/10.1111/epi.16841
+(cover: doi.org/10.1111/epi.16080)
 
 The `OPSCEA` MATLAB package. All code included to generate a video of ictal activity projected on a reconstructed brain. Documentation with additional instructions and sample data are provided as well.
 
