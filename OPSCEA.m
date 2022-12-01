@@ -35,7 +35,7 @@ function OPSCEA(pt,sz,showlabels,jumpto)
 if ~exist('showlabels','var')||isempty(showlabels); showlabels=true; end %default displays ICEEG and depth labels
 if ~exist('jumpto','var')||isempty(jumpto); jumpto=0; end 
 
-opsceapath=['/Users/kleentestaccount/Desktop/OPSCEA/'];   %path for parameters sheet
+opsceapath=['/Users/rchristin/Kleen-Lab/OPSCEA/'];   %path for parameters sheet
 opsceadatapath=[opsceapath 'OPSCEADATA/'];   %path for OPSCEA ICEEG and imaging data
     if ~exist(opsceadatapath,'dir'); error('Directory for your data needs to be corrected'); end
 cd(opsceapath);
@@ -87,7 +87,7 @@ cd
     pltzoom=str2double(plt(:,strcmpi(fields_PLOT,'pltzoom')));
     pltshowplanes=str2double(plt(:,strcmpi(fields_PLOT,'showplanes')))==1; %logical index of plots in which to show slice planes
   end
-
+        
 %% Get time segments within the ICEEG file to use
     VIDstart=prm(:,strcmpi(fields_SZ,'VIDstart')); VIDstop=prm(:,strcmpi(fields_SZ,'VIDstop')); %chunk of data (seconds into ICEEG data file) to use from the whole ICEEG data clip for the video
     S.VIDperiod=[str2double(VIDstart{1}) str2double(VIDstop{1})];
@@ -152,6 +152,21 @@ end
    
 
 isR=nansum(em(:,1))>0; isL=isR~=1; %handy binary indicators for laterality
+
+%% Implement isL/isR fix suggested by @aarongeller, allows the specifying of th side for all depths of bilateral implants
+  isRdepth = [];
+  isLdepth = [];
+  
+  for i=1:length(depths)
+    if ~isnan(depths{i})
+        xval_highcontact = em(depths{i}(end),1);
+        isRdepth(end+1) = xval_highcontact>=0;
+        isLdepth(end+1) = xval_highcontact<0;
+    else
+        isRdepth(end+1) = nan;
+        isLdepth(end+1) = nan;
+    end
+  end
 
 %% load meshes you want to plot
 meshpath='Imaging/Meshes/';
@@ -219,6 +234,8 @@ S.fram=round(sfx/S.fps);
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% PLOTTING TIME!
 sliceinfo=[]; loaf.vrf=[]; loaf.apasrf=[]; loaf.normloaf=[]; sliceinfo.viewangle=zeros(size(plt,1),3); sliceinfo.azel=[]; sliceinfo.corners=[]; loaf.isR=isR; loaf.isL=isL; 
+%% Implement isL/isR fix proposed by @aarongeller
+loaf.isRdepth=isRdepth; loaf.isLdepth=isLdepth;
 clear F; 
 ytl=eleclabels(nns,1); 
 nch=length(find(nns)); 

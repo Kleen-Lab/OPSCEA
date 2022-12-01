@@ -91,9 +91,9 @@ if isfirstframe
     XX = meshgrid(-128:128).*cos(theta) + elecs(e1,1);
     YY =sin(theta).*meshgrid(-128:128) + elecs(e1,2); %get coordinates in space
     sliceinfo(j).viewangle(1:3)=[-YY(1,end) 128 0];
-        theta=theta+[pi*loaf.isL]; 
-        if (m)>10; theta=theta+[pi*loaf.isR]; end
-    sliceinfo(j).azel=[circ_rad2ang(theta-pi)+20*(-1*loaf.isR++1*loaf.isL),0]; % head-on angle minues 20 degrees for each slice to add perspective
+        theta=theta+[pi*loaf.isLdepth(j)]; 
+        if (m)>10; theta=theta+[pi*loaf.isRdepth(j)]; end
+    sliceinfo(j).azel=[circ_rad2ang(theta-pi) + 20*(-1*loaf.isRdepth(j) + 1*loaf.isLdepth(j)),0]; % head-on angle minues 20 degrees for each slice to add perspective
     sliceinfo(j).XX=XX; sliceinfo(j).YY=YY; sliceinfo(j).ZZ=ZZ; 
     sliceinfo(j).xslice=xslice; sliceinfo(j).yslice=yslice; sliceinfo(j).zslice=zslice;
 
