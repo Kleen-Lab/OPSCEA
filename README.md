@@ -81,7 +81,7 @@ The **OPSCEAparams.xlsx** sheet contains the following parameters:
 - *VIDstart* - time in seconds from the start of the ICEEG data file from which the video should start (should be before seizure onset)
 - *VIDstop* - time in seconds from the start of the ICEEG data file at which the video should stop
 - *BLstart* - time in seconds from the start of the ICEEG data file from which the baseline period should start
-- *BLstop* - time in seconds from the start of the ICEEG data file at which the baseline period should stop (should be before seizure onset)
+- *BLstop* - time in seconds from the start of the ICEEG data file at which the baseline period should stop (should be before seizure onset, otherwise the "baseline" includes seizure data)
 - *llw* - length of line length window for ECoG data
 - *iceeg_scale* - scale of ECoG gain displayed in ECoG data
 - *fps* - frames per seconds of the output video
