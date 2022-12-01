@@ -87,7 +87,22 @@ cd
     pltzoom=str2double(plt(:,strcmpi(fields_PLOT,'pltzoom')));
     pltshowplanes=str2double(plt(:,strcmpi(fields_PLOT,'showplanes')))==1; %logical index of plots in which to show slice planes
   end
-
+  
+%% Implement isL/isR fix suggested by @aarongeller, allows the specifying of th side for all depths of bilateral implants
+  isRdepth = [];
+  isLdepth = [];
+  
+  for i=1:length(depths)
+    if ~isnan(depths{i})
+        xval_highcontact = em(depths{i}(count),1);
+        isRdepth(count+1) = xval_highcontact>=0;
+        isLdepth(count+1) = xval_highcontact<0;
+    else
+        isRdepth(count+1) = nan;
+        isLdepth(count+1) = nan;
+    end
+  end
+        
 %% Get time segments within the ICEEG file to use
     VIDstart=prm(:,strcmpi(fields_SZ,'VIDstart')); VIDstop=prm(:,strcmpi(fields_SZ,'VIDstop')); %chunk of data (seconds into ICEEG data file) to use from the whole ICEEG data clip for the video
     S.VIDperiod=[str2double(VIDstart{1}) str2double(VIDstop{1})];
@@ -219,6 +234,8 @@ S.fram=round(sfx/S.fps);
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% PLOTTING TIME!
 sliceinfo=[]; loaf.vrf=[]; loaf.apasrf=[]; loaf.normloaf=[]; sliceinfo.viewangle=zeros(size(plt,1),3); sliceinfo.azel=[]; sliceinfo.corners=[]; loaf.isR=isR; loaf.isL=isL; 
+%% Implement isL/isR fix proposed by @aarongeller
+loaf.isRdepth=isRdepth; loaf.isLdepth=isLdepth;
 clear F; 
 ytl=eleclabels(nns,1); 
 nch=length(find(nns)); 
