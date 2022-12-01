@@ -35,7 +35,7 @@ function OPSCEA(pt,sz,showlabels,jumpto)
 if ~exist('showlabels','var')||isempty(showlabels); showlabels=true; end %default displays ICEEG and depth labels
 if ~exist('jumpto','var')||isempty(jumpto); jumpto=0; end 
 
-opsceapath=['/Users/kleentestaccount/Desktop/OPSCEA/'];   %path for parameters sheet
+opsceapath=['/Users/rchristin/Kleen-Lab/OPSCEA/'];   %path for parameters sheet
 opsceadatapath=[opsceapath 'OPSCEADATA/'];   %path for OPSCEA ICEEG and imaging data
     if ~exist(opsceadatapath,'dir'); error('Directory for your data needs to be corrected'); end
 cd(opsceapath);
@@ -86,21 +86,6 @@ cd
     for j=1:length(depthcolor); splt=regexp(depthcolor{j},',','split'); depthcolor{j}=str2double(splt); end 
     pltzoom=str2double(plt(:,strcmpi(fields_PLOT,'pltzoom')));
     pltshowplanes=str2double(plt(:,strcmpi(fields_PLOT,'showplanes')))==1; %logical index of plots in which to show slice planes
-  end
-  
-%% Implement isL/isR fix suggested by @aarongeller, allows the specifying of th side for all depths of bilateral implants
-  isRdepth = [];
-  isLdepth = [];
-  
-  for i=1:length(depths)
-    if ~isnan(depths{i})
-        xval_highcontact = em(depths{i}(count),1);
-        isRdepth(count+1) = xval_highcontact>=0;
-        isLdepth(count+1) = xval_highcontact<0;
-    else
-        isRdepth(count+1) = nan;
-        isLdepth(count+1) = nan;
-    end
   end
         
 %% Get time segments within the ICEEG file to use
@@ -167,6 +152,21 @@ end
    
 
 isR=nansum(em(:,1))>0; isL=isR~=1; %handy binary indicators for laterality
+
+%% Implement isL/isR fix suggested by @aarongeller, allows the specifying of th side for all depths of bilateral implants
+  isRdepth = [];
+  isLdepth = [];
+  
+  for i=1:length(depths)
+    if ~isnan(depths{i})
+        xval_highcontact = em(depths{i}(end),1);
+        isRdepth(end+1) = xval_highcontact>=0;
+        isLdepth(end+1) = xval_highcontact<0;
+    else
+        isRdepth(end+1) = nan;
+        isLdepth(end+1) = nan;
+    end
+  end
 
 %% load meshes you want to plot
 meshpath='Imaging/Meshes/';
