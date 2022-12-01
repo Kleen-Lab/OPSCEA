@@ -105,7 +105,7 @@ After the data files have been organized as described in [Use your own data](#5-
 ```
 OPSCEA(PatientName, SzId, ShowLabel, JumpTo)
 ```
-Where `PatientName` is the patient ID, `SzId` is the seizure ID to be plotted, `ShowLabel` is a boolean value to decide whether to show the channel labels (1 shows the label; 0 hides the labels and randomizes the order; default is 1), and `JumpTo` is the number of seconds to offset the start of the video by (Default is 0).  
+Where `PatientName` is the patient ID, `SzId` is the seizure ID to be plotted, `ShowLabel` is a boolean value to decide whether to show the channel labels (1 shows the label; 0 hides the labels and randomizes the order; default is 1), and `JumpTo` is the number of seconds by which to offset the start of the video from the value that is specified in **OPSCEAparams.xslx** (Default is 0).  
 Example usage using the default data, as described in the [sample data](#4-download-sample-data) section:
 ```
 OPSCEA('UCSF1', '01', 1, 0)
