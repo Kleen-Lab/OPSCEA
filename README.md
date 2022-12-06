@@ -100,7 +100,7 @@ Additionally, each patient should have a separate sheet, named **PatientName**, 
 - The surface views wanted (e.g. RAI would be a Right Anterior Inferior viewpoint)
 - The subplots wanted. ECoG always goes on the right side. 
 
-An example of all of this is provided in the `OPSCEAparams.xlsx` file within this repository.
+An example of all of this is provided in the `OPSCEAparams_ex.xlsx` file within this repository.
 
 ## Usage
 After the data files have been organized as described in [Use your own data](#5-use-your-own-data), the data has been preprocessed as explained in [Preprocessing](#preprocessing), and the parameters have been adjusted as described in [Parameters](#parameters), one can generate a video by running the following command in matlab: 
