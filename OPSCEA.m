@@ -36,7 +36,7 @@ if ~exist('showlabels','var')||isempty(showlabels); showlabels=true; end %defaul
 if ~exist('jumpto','var')||isempty(jumpto); jumpto=0; end 
 
 opsceapath=['/Users/rchristin/Kleen-Lab/OPSCEA/'];   %path for parameters sheet
-opsceadatapath=[opsceapath 'OPSCEADATA/'];   %path for OPSCEA ICEEG and imaging data
+opsceadatapath=['/Volumes/OPSCEA/OPSCEADATA_new_format/'];   %path for OPSCEA ICEEG and imaging data
     if ~exist(opsceadatapath,'dir'); error('Directory for your data needs to be corrected'); end
 cd(opsceapath);
 
@@ -195,7 +195,6 @@ nns=true(nch,1); nns(ns)=0; %nns=find(nns); %consolidate bad channels and those 
 if size(em,1)>size(d,1); nch=size(em,1); d(nch+1:end,:)=[]; LL(nch+1:end,:)=[]; nns(nch+1:end)=[]; ns(ns>size(em,1))=[]; 
    fprintf(2, 'ALERT: Clipping off extra bad channel entries (make sure you have the right ICEEG and bad channel files loaded)\n');
 end
-
 
 %% ICEEG data processing and transform
 
@@ -369,8 +368,9 @@ for i=frametimpoints;
     F(f)=getframe(gcf); f=f+1; fprintf('Saved frame - '); toc
 end
 
-cd(szpath) % Save video in the same data folder for that seizure
-if showlabels; vidfilename=[ptsz '_video']; else vidfilename=[num2str(str2num(pt(3:end))*11) '_' sz]; end
+%cd(szpath) % Save video in the same data folder for that seizure
+%if showlabels; vidfilename=[ptsz '_video']; else vidfilename=[num2str(str2num(pt(3:end))*11) '_' sz]; end
+vidfilename = ['/Users/rchristin/Kleen-Lab/test_videos/' pt '_' sz];
 v=VideoWriter(vidfilename,'MPEG-4'); 
 v.FrameRate = 15; 
 open(v); 
