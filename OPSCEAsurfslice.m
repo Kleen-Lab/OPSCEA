@@ -32,9 +32,9 @@ if nargin<3; error('surfslice requires at least 3 input arguments'); end
 
 %% this section sets up paths and filenames
 fsbin = strcat(fs_dir,'/bin/');
-subjectpath = strcat(subj_dir,'/',subject,'/Imaging');
-brainpathmgz = strcat([subjectpath,'/mri/brain.mgz']);
-aparcpathmgz = strcat([subjectpath,'/mri/aparc+aseg.mgz']);
+subjectpath = strcat(subj_dir,subject,'/Imaging');
+brainpathmgz = char(strcat(subjectpath,'/mri/brain.mgz'));
+aparcpathmgz = char(strcat(subjectpath,'/mri/aparc+aseg.mgz'));
 
 bashpath=getenv('PATH');
 newpath=strcat([bashpath, ':',fsbin]); 
@@ -42,7 +42,7 @@ if length(newpath)>1000; newpath='/Applications/freesurfer/bin/'; end
 
 %%  this section loads in and sets up volume and surface data
 setenv('BRAINMGZ',brainpathmgz);
-if isempty(loaf.vrf); 
+if isempty(loaf.vrf) 
 v=load_mgh(brainpathmgz); 
 apas = load_mgh(aparcpathmgz); 
 vr=imrotate3(v,90,[1 0 0],'cubic','crop');
@@ -50,7 +50,8 @@ vr=imrotate3(vr,90,[0 1 0],'cubic','crop');
 vrf=flip(vr,2);
 vrf=flip(vrf,3);
 loaf.vrf=vrf;
-else vrf=loaf.vrf;
+else 
+    vrf=loaf.vrf;
 end
 
 if isempty(loaf.apasrf) 

@@ -35,15 +35,15 @@ function OPSCEA(pt,sz,showlabels,jumpto)
 if ~exist('showlabels','var')||isempty(showlabels); showlabels=true; end %default displays ICEEG and depth labels
 if ~exist('jumpto','var')||isempty(jumpto); jumpto=0; end 
 
-opsceapath=['/Users/rchristin/Kleen-Lab/OPSCEA/'];   %path for parameters sheet
-opsceadatapath=['/Volumes/OPSCEA/OPSCEADATA_new_format/'];   %path for OPSCEA ICEEG and imaging data
+opsceapath='/Users/rchristin/Kleen-Lab/OPSCEA/';   %path for parameters sheet
+opsceadatapath='/Volumes/OPSCEA/OPSCEADATA_new_format/';   %path for OPSCEA ICEEG and imaging data
     if ~exist(opsceadatapath,'dir'); error('Directory for your data needs to be corrected'); end
 cd(opsceapath);
 
-ptsz=[pt '_' sz]; % prefix for filenames of specific seizure
-ptpath=[opsceadatapath pt '/']; % patient's folder
-szpath= [ptpath ptsz '/']; % specific seizure's folder
-disp(['Running ' pt ', seizure ' sz '...']);
+ptsz=append(pt, '_', sz); % prefix for filenames of specific seizure
+ptpath=append(opsceadatapath, pt, '/'); % patient's folder
+szpath= append(ptpath, ptsz, '/'); % specific seizure's folder
+disp(append('Running ', pt, ', seizure ', sz, '...'));
 
 %% Initiate global variables
   global S; % holds general parameters
@@ -55,12 +55,12 @@ disp(['Running ' pt ', seizure ' sz '...']);
 
 %% Import parameters
 % for specific seizure 
-[~,prm_allPtSz]=xlsread([opsceapath 'OPSCEAparams'],'params'); 
+[~,prm_allPtSz]=xlsread(append(opsceapath, 'OPSCEAparams'),'params'); 
     fields_SZ=prm_allPtSz(1,:); % header for columns of seizure parameters
     prm=prm_allPtSz(strcmp(pt,prm_allPtSz(:,1))&strcmp(sz,prm_allPtSz(:,2)),:);
-    if isempty(prm); error(['ATTENTION: No entry exists for ' pt ' seizure ' sz ' in the params master sheet']); end
+    if isempty(prm); error('ATTENTION: No entry exists for ' + pt + ' seizure ' + sz + ' in the params master sheet'); end
 % Import parameters for patient's specific plot (layout of video frame)
-[~,plt]=xlsread([opsceapath 'OPSCEAparams'],pt); 
+[~,plt]=xlsread(append(opsceapath, 'OPSCEAparams'),pt); 
     fields_PLOT=plt(1,:); plt(1,:)=[]; % header for columns of plotting parameters
     plottype=plt(:,strcmpi(fields_PLOT,'plottype')); %type of plot for each subplot (accepts: iceeg, surface, depth, or colorbar)
 
@@ -103,7 +103,7 @@ S.cax=str2double(regexp(prm{strcmp('cax',fields_SZ)},',','split'));         %col
 S.gsp=str2double(prm{strcmp('gsp',fields_SZ)}); %gaussian spreading parameter (default 10)
     params={'iceeg_scale','fps','cax','gsp'}; 
     paramsnans=isnan([(isnan(S.iceeg_scale) | S.iceeg_scale<=50 | S.iceeg_scale>=100)   S.fps   any(isnan(S.cax)) S.gsp]); 
-    if any(paramsnans); error(['ATTENTION OPSCEA USER: The "' params{paramsnans} '" term(s) is/are in an incorrect format (perhaps number instead of string), check excel seizure parameter sheet']); 
+    if any(paramsnans); error('ATTENTION OPSCEA USER: The "' + params{paramsnans} + '" term(s) is/are in an incorrect format (perhaps number instead of string), check excel seizure parameter sheet'); 
     end 
   cm=prm{strcmp('cm',fields_SZ)};
   switch cm; case 'cmOPSCEAcool'; cm=cmOPSCEAcool; 
@@ -128,11 +128,11 @@ S=orderfields(S); %alphabetize the structure fields for ease of use/search
 S.sliceplane='c'; % calculate omni-planar slice angles with respect to coronal (c) plane
 
 %% load ICEEG data, and the bad channels verified for that specific data
-load([szpath ptsz])
-load([szpath ptsz '_badch']); 
+load(append(szpath, ptsz))
+load(append(szpath, ptsz, '_badch')); 
 if size(d,1)>size(d,2); d=d'; end % orient to channels by samples
 [nch,ntp]=size(d); f=1; 
-disp(['Length of data to play for video is ' num2str(round(ntp/sfx)) 'sec'])
+disp(append('Length of data to play for video is ', num2str(round(ntp/sfx)), 'sec'))
 
 % error checks for selected time periods
 if any([S.VIDperiod(1) S.BLperiod(1)]<0)
@@ -142,7 +142,7 @@ elseif any([S.VIDperiod(2) S.BLperiod(2)]>ntp)
 end 
 
 %% locate and load electrode file for labels and XYZ coordinates
-    load([ptpath 'Imaging/Elecs/Electrodefile.mat']); 
+    load(append(ptpath, 'Imaging/Elecs/Electrodefile.mat')); 
     if ~exist('anatomy','var'); anatomy=cell(size(elecmatrix,1),4); end
     if size(anatomy,1)>size(elecmatrix,1); anatomy(size(elecmatrix,1)+1:end)=[]; end
     anat=anatomy; clear anatomy; if size(anat,2)>size(anat,1); anat=anat'; end
@@ -170,13 +170,35 @@ isR=nansum(em(:,1))>0; isL=isR~=1; %handy binary indicators for laterality
 
 %% load meshes you want to plot
 meshpath='Imaging/Meshes/';
-Rcortex=load([ptpath meshpath pt '_rh_pial.mat']); loaf.rpial=Rcortex; Rcrtx=Rcortex.cortex; clear Rcortex
-Lcortex=load([ptpath meshpath pt '_lh_pial.mat']); loaf.lpial=Lcortex; Lcrtx=Lcortex.cortex; clear Lcortex
+Rcortex=load(append(ptpath, meshpath, pt, '_rh_pial.mat')); loaf.rpial=Rcortex; Rcrtx=Rcortex.cortex; clear Rcortex
+Lcortex=load(append(ptpath, meshpath, pt, '_lh_pial.mat')); loaf.lpial=Lcortex; Lcrtx=Lcortex.cortex; clear Lcortex
 
 for i=1:length(surfaces); hippentry(i)=~isempty(strfind(surfaces{i},'hipp')); amygentry(i)=~isempty(strfind(surfaces{i},'amyg')); end; 
 errmsg='ATTN: MISSING A MESH, need to add this mesh file to directory (or remove/omit from frame): ';
-  if any(hippentry); Rhipp=[ptpath meshpath 'subcortical/rHipp_subcort.mat']; Lhipp=Rhipp; Lhipp(end-16)='l'; if exist(Rhipp,'file'); Rhipp=load(Rhipp); Rhipp=Rhipp.cortex;  Lhipp=load(Lhipp); Lhipp=Lhipp.cortex;     else; error([errmsg 'hipp']); end; end
-  if any(amygentry); Ramyg=[ptpath meshpath 'subcortical/rAmgd_subcort.mat']; Lamyg=Ramyg; Lamyg(end-16)='l'; if exist(Ramyg,'file'); Ramyg=load(Ramyg); Ramyg=Ramyg.cortex;  Lamyg=load(Lamyg); Lamyg=Lamyg.cortex;     else; error([errmsg 'amyg']); end; end
+  if any(hippentry)
+      Rhipp=append(ptpath, meshpath, 'subcortical/rHipp_subcort.mat'); 
+      Lhipp=append(ptpath, meshpath, 'subcortical/lHipp_subcort.mat');
+      if exist(Rhipp,'file')
+          Rhipp=load(Rhipp); 
+          Rhipp=Rhipp.cortex;  
+          Lhipp=load(Lhipp); 
+          Lhipp=Lhipp.cortex;     
+      else
+          error(append(errmsg, 'hipp')); 
+      end
+  end
+  if any(amygentry)
+      Ramyg=append(ptpath, meshpath, 'subcortical/rAmgd_subcort.mat'); 
+      Lamyg=append(ptpath, meshpath, 'subcortical/lAmgd_subcort.mat'); 
+      if exist(Ramyg,'file')
+          Ramyg=load(Ramyg); 
+          Ramyg=Ramyg.cortex;  
+          Lamyg=load(Lamyg); 
+          Lamyg=Lamyg.cortex;     
+      else
+          error(append(errmsg, 'amyg')); 
+      end
+  end
 drows=find(strcmp(plottype,'depth'))'; ndepths=length(drows);
 
 depthch=[]; for i=1:length(drows); depthch=[depthch depths{drows(i)}]; end; clear i %identify all depth electrode channels
@@ -243,9 +265,9 @@ chanorder=1:size(d(nns,:),1); if ~showlabels; chanorder=randperm(size(d(nns,:),1
 figure('color','w','Position',[1 5 1280 700]); 
 frametimpoints=jumpto:S.fram:ntp-sfx*S.iceegwin; % timepoint index of each frame to be rendered
 for i=frametimpoints; 
-    if i==jumpto+2*S.fram; timerem_sec=toc*length(frametimpoints); disp(['Length of data is ' num2str(ntp/sfx) 'sec']); disp(datetime); 
-        disp([' -- VIDEO ETA: ' num2str(floor(timerem_sec/3600)) 'h ' num2str(ceil(mod(timerem_sec,3600)/60)) 'm -- ']); 
-        fprintf('Will be done at approx: '); disp(datetime( clock, 'InputFormat', 'HH:mm:ss' ) + seconds(timerem_sec))
+    if i==jumpto+2*S.fram; timerem_sec=toc*length(frametimpoints); disp(append('Length of data is ', num2str(ntp/sfx), 'sec')); disp(datetime); 
+        disp(append(' -- VIDEO ETA: ', num2str(floor(timerem_sec/3600)), 'h ', num2str(ceil(mod(timerem_sec,3600)/60)), 'm -- ')); 
+        fprintf('Will be done at approx: '); disp(datetime( clock, 'InputFormat', 'HH:mm:ss' ) +  seconds(timerem_sec))
     end; tic 
     isfirstframe = i==jumpto; 
     subplot(1,1,1); %clears all axes, to start fresh each frame
@@ -288,12 +310,12 @@ for i=frametimpoints;
                     case 'lamyg';   srfplot=Lamyg; 
                 end
               else
-                  disp(['ATTN: Row ' num2str(j) ' defined as surface but does not contain an accepted mesh term']); disp(acceptedterms); error('');
+                  disp(append('ATTN: Row ', num2str(j), ' defined as surface but does not contain an accepted mesh term')); disp(acceptedterms); error('');
               end
               % plot the individual heatmapped surface
               if exist('srfplot','var'); hh=ctmr_gauss_plot_edited(srfplot,em(nns,:),w8s(nns),S.cax,0,S.cm,S.gsp); 
                                          alpha(hh,str2double(srfalpha{s})); % Adjust opacity specified for that row
-              else; disp(['ALERT: One of the entries in row ' num2str(j) ' is not a valid entry, accepts:']); disp(acceptedterms); 
+              else; disp(append('ALERT: One of the entries in row ', num2str(j), ' is not a valid entry, accepts:')); disp(acceptedterms); 
               end
             end
                 if isempty(intersect(srf{s},{'rcortex','lcortex'}))||strcmpi(srf,'wholebrain') %for glass brain (hipp and/or amyg only) and wholebrain plots
@@ -340,7 +362,7 @@ for i=frametimpoints;
           end
           axis(axislim); zoom(pltzoom(j)); % apply the specified zoom for that this view (usually similar for all depths but can depend on angle of slice, position of electrodes, etc)
           
-          if showlabels; ttl=depthlabels{j}; else ttl=['Depth ' num2str(j-(find(isdepth==1,1)-1))]; end
+          if showlabels; ttl=depthlabels{j}; else ttl='Depth ' + num2str(j-(find(isdepth==1,1)-1)); end
           ttloffset=-1; % vertical offset of title from bottom of axis, in millimeters
           text(mean(sliceinfo(j).corners(1,:)),mean(sliceinfo(j).corners(2,:)),axislim(5)+ttloffset,ttl,'HorizontalAlignment','center','VerticalAlignment','top','color',depthcolor{j},'fontweight','bold','fontsize',14) 
           
@@ -369,8 +391,8 @@ for i=frametimpoints;
 end
 
 %cd(szpath) % Save video in the same data folder for that seizure
-%if showlabels; vidfilename=[ptsz '_video']; else vidfilename=[num2str(str2num(pt(3:end))*11) '_' sz]; end
-vidfilename = ['/Users/rchristin/Kleen-Lab/test_videos/' pt '_' sz];
+%if showlabels; vidfilename=append(ptsz, '_video'); else vidfilename=append(num2str(str2num(pt(3:end))*11), '_', sz); end
+vidfilename = append('/Users/rchristin/Kleen-Lab/test_videos/', pt, '_', sz);
 v=VideoWriter(vidfilename,'MPEG-4'); 
 v.FrameRate = 15; 
 open(v); 
