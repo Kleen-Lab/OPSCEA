@@ -36,7 +36,7 @@ Once downloaded, unzip file and move it to the same folder as the code from this
 ### 5. Use your own data  
 To use your own data with the OPSCEA package, you need to organize it in a specific way. Each patient should have a subdirectory within your data directory, as follows: `PatientName/`. Each patient subdirectory should contain : 
 - The `Imaging/` subdirectory, which contains the following:
-  - The `MRI/` subdirectory, which contains the MRI data as follows:
+  - The `mri/` subdirectory, which contains the MRI data as follows:
     - **brain.mgz.gz** - the t1 MRI scan
     - **aparc+aseg.mgz.gz** - the FreeSurfer full segmentation of the brain
   - The `Meshes/` subdirectory, containing processed surface mesh data as follows:
