@@ -158,7 +158,7 @@ isR=nansum(em(:,1))>0; isL=isR~=1; %handy binary indicators for laterality
   isLdepth = [];
   
   for i=1:length(depths)
-    if ~isnan(depths{i})
+    if ~isnan(depthlabels{i})
         xval_highcontact = em(depths{i}(end),1);
         isRdepth(end+1) = xval_highcontact>=0;
         isLdepth(end+1) = xval_highcontact<0;
@@ -329,9 +329,11 @@ for i=frametimpoints;
                 litebrain(viewangle{j},.9); 
                 wb=strcmpi(srf,'wholebrain'); if any(wb); alpha(glass1,srfalpha{wb}); alpha(glass2,srfalpha{wb}); end
                 if strcmp(viewangle{j},'i'); view(90+isL*180,270); end
-                if pltshowplanes(j)||(strcmp(viewangle{j},'i')&&~isempty(intersect(srf,'wholebrain'))); view(180,270); end %orients the "show planes" slice to a classic axial perspective
+                if exist('pltshowplanes')
+                    if pltshowplanes(j)||(strcmp(viewangle{j},'i')&&~isempty(intersect(srf,'wholebrain'))); view(180,270); end %orients the "show planes" slice to a classic axial perspective
+                end
                 axis(axislim); if strcmpi(viewangle{j},'i')||strcmpi(viewangle{j},'s')||strcmpi(viewangle{j},'a')||strcmpi(viewangle{j},'p');  if ~strcmpi(pt,'NO181'); axis([axislim(1)*isL+10*isR axislim(2)*isR+10*isL  axislim(3:6)]); end; end
-                zoom(pltzoom(j)); 
+                if exist('pltzoom');zoom(pltzoom(j)); end;
                 hold on; colormap(gca,S.cm); set(gca,'Clipping','off')
                 clear srfplot
       case 'DEPTH' %plot depth electrode with parallel slice (plus surface behind it)
