@@ -181,5 +181,9 @@ function status = orientation_good(verts, m, b, orientation)
         % for oblique coronal cut we want the part to the right of the
         % plane when viewed from the side (i.e. the posterior part)
         status = 1;
+    elseif strcmp(orientation, 'c') && centroid(2) < (centroid(3) - b)/m
+        % for oblique coronal cut we want the part to the right of the
+        % plane when viewed from the side (i.e. the posterior part)
+        status = 1;
     end
 end
