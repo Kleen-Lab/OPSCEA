@@ -51,8 +51,6 @@ function split = splitbrain(cortex,orientation,b, m)
     % Adjusting thegap can help for individual cases but will need a more 
     % unified solution in a future iteration of OPSCEA software.
     % -------------------------------------------------------------------
-    % Attempting a fix for this issue that was proposed by @aarongeller
-    %   Adds the orientation_good function 
     
     if strcmp(orientation, 'c')
         if (min(cortex.cortex.vert(:,2)) < b) && (b < max(cortex.cortex.vert(:,2)))
