@@ -275,7 +275,7 @@ for i=frametimpoints;
           hold off; srf=regexp(surfaces{j},',','split'); % list the specific surfaces wanted for this subplot
           srfalpha=regexp(surfacesopacity{j},',','split'); % list their corresponding opacities (values from 0 to 1; 0=invisible, 1=opaque)
           if length(srf)~=length(srfalpha); msgbox('Number of surface to plot does not match number of alpha designations, check excel sheet'); return; end
-          acceptedterms={'rcortex','lcortex','rhipp','lhipp','ramyg','lamyg','wholebrain'};
+          acceptedterms={'rcortex','lcortex','rhipp','lhipp','ramyg','lamyg','wholebrain', 'rcin', 'lcin', 'rins', 'lins'};
             for s=1:length(srf)
                 srf{s}=lower(srf{s}); %convert to lower case for easier string matching
               if ~isempty(intersect(srf{s},acceptedterms)) %make sure user specified accepted terminologies for the meshes
