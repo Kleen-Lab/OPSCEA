@@ -35,8 +35,8 @@ function OPSCEA(pt,sz,showlabels,jumpto)
 if ~exist('showlabels','var')||isempty(showlabels); showlabels=true; end %default displays ICEEG and depth labels
 if ~exist('jumpto','var')||isempty(jumpto); jumpto=0; end 
 
-opsceapath=['/Users/rchristin/Kleen-Lab/OPSCEA/'];   %path for parameters sheet
-opsceadatapath=['/Volumes/OPSCEA/OPSCEADATA_new_format/'];   %path for OPSCEA ICEEG and imaging data
+opsceapath=['~/Documents/GitHub/OPSCEA/'];   %path for parameters sheet
+opsceadatapath=['~/Documents/GitHub/OPSCEA/OPSCEADATA/'];   %path for OPSCEA ICEEG and imaging data
     if ~exist(opsceadatapath,'dir'); error('Directory for your data needs to be corrected'); end
 cd(opsceapath);
 
@@ -55,7 +55,7 @@ disp(['Running ' pt ', seizure ' sz '...']);
 
 %% Import parameters
 % for specific seizure 
-[~,prm_allPtSz]=xlsread([opsceapath 'OPSCEAparams'],'params'); 
+[~,prm_allPtSz]=xlsread([opsceapath 'OPSCEAparams_ex'],'params'); 
     fields_SZ=prm_allPtSz(1,:); % header for columns of seizure parameters
     prm=prm_allPtSz(strcmp(pt,prm_allPtSz(:,1))&strcmp(sz,prm_allPtSz(:,2)),:);
     if isempty(prm); error(['ATTENTION: No entry exists for ' pt ' seizure ' sz ' in the params master sheet']); end
