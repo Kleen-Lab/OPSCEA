@@ -60,7 +60,7 @@ disp(['Running ' pt ', seizure ' sz '...']);
     prm=prm_allPtSz(strcmp(pt,prm_allPtSz(:,1))&strcmp(sz,prm_allPtSz(:,2)),:);
     if isempty(prm); error(['ATTENTION: No entry exists for ' pt ' seizure ' sz ' in the params master sheet']); end
 % Import parameters for patient's specific plot (layout of video frame)
-[~,plt]=xlsread([opsceapath 'OPSCEAparams'],pt); 
+[~,plt]=xlsread([opsceapath 'OPSCEAparams_ex'],pt); 
     fields_PLOT=plt(1,:); plt(1,:)=[]; % header for columns of plotting parameters
     plottype=plt(:,strcmpi(fields_PLOT,'plottype')); %type of plot for each subplot (accepts: iceeg, surface, depth, or colorbar)
 
@@ -302,6 +302,7 @@ for i=frametimpoints;
                     plot3(em(depthch,1),em(depthch,2),em(depthch,3),'k.','markersize',10-5*(1/nch*10))
                     if ~pltshowplanes(j); plot3(em(nns,1),em(nns,2),em(nns,3),'k.','markersize',10-5*(1/nch*10)); end 
                 else plot3(em(nns,1),em(nns,2),em(nns,3),'k.','markersize',10-5*(1/nch*10)) %plot electrodes
+                     plot3(em(nns&hitthresh,1),em(nns&hitthresh,2),em(nns&hitthresh,3),'w*','markersize',10-5*(1/nch*10)) %superimpose electrodes that already hit thresh
                 end
                 cameratoolbar('setmode',''); 
                 litebrain(viewangle{j},.9); 
