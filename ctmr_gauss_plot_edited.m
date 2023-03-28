@@ -67,6 +67,7 @@ if exist('cax','var') && ~isempty(cax); set(gca,'CLim',[cax(1) cax(2)]);
 else set(gca,'CLim',[-max(abs(d)) max(abs(d))]); 
 end
 colormap(gca,cm)
+lighting phong; 
 material dull;
 axis off
 litebrain('a',.1) %just so it is visible; will replace lighting soon

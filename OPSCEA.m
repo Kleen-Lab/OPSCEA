@@ -35,8 +35,8 @@ function OPSCEA(pt,sz,showlabels,jumpto)
 if ~exist('showlabels','var')||isempty(showlabels); showlabels=true; end %default displays ICEEG and depth labels
 if ~exist('jumpto','var')||isempty(jumpto); jumpto=0; end 
 
-opsceapath=['~/Documents/GitHub/OPSCEA/'];   %path for parameters sheet
-opsceadatapath=['~/Documents/GitHub/OPSCEA/OPSCEADATA/'];   %path for OPSCEA ICEEG and imaging data
+opsceapath=['/Volumes/KLEEN_DRIVE/OPSCEA/OPSCEADATA/'];   %path for parameters sheet
+opsceadatapath=['/Volumes/KLEEN_DRIVE/OPSCEA/OPSCEADATA/'];   %path for OPSCEA ICEEG and imaging data
     if ~exist(opsceadatapath,'dir'); error('Directory for your data needs to be corrected'); end
 cd(opsceapath);
 
@@ -55,12 +55,12 @@ disp(['Running ' pt ', seizure ' sz '...']);
 
 %% Import parameters
 % for specific seizure 
-[~,prm_allPtSz]=xlsread([opsceapath 'OPSCEAparams_ex'],'params'); 
+[~,prm_allPtSz]=xlsread([opsceapath 'OPSCEAparams'],'params'); 
     fields_SZ=prm_allPtSz(1,:); % header for columns of seizure parameters
     prm=prm_allPtSz(strcmp(pt,prm_allPtSz(:,1))&strcmp(sz,prm_allPtSz(:,2)),:);
     if isempty(prm); error(['ATTENTION: No entry exists for ' pt ' seizure ' sz ' in the params master sheet']); end
 % Import parameters for patient's specific plot (layout of video frame)
-[~,plt]=xlsread([opsceapath 'OPSCEAparams_ex'],pt); 
+[~,plt]=xlsread([opsceapath 'OPSCEAparams'],pt); 
     fields_PLOT=plt(1,:); plt(1,:)=[]; % header for columns of plotting parameters
     plottype=plt(:,strcmpi(fields_PLOT,'plottype')); %type of plot for each subplot (accepts: iceeg, surface, depth, or colorbar)
 
@@ -74,6 +74,7 @@ cd
     surfaces=plt(:,strcmpi(fields_PLOT,'surfaces'));
     surfacesopacity=plt(:,strcmpi(fields_PLOT,'surfacesopacity'));
     viewangle=lower(plt(:,strcmpi(fields_PLOT,'viewangle')));
+    pltzoom=str2double(plt(:,strcmpi(fields_PLOT,'pltzoom')));
 
 %% parcel all individual depth labels, contact #s, and colors. If no depths, make it  =[];
   depthlabels=plt(:,strcmpi(fields_PLOT,'depthlabels'));
@@ -84,8 +85,9 @@ cd
     end
     depthcolor=plt(:,strcmpi(fields_PLOT,'depthcolor')); 
     for j=1:length(depthcolor); splt=regexp(depthcolor{j},',','split'); depthcolor{j}=str2double(splt); end 
-    pltzoom=str2double(plt(:,strcmpi(fields_PLOT,'pltzoom')));
     pltshowplanes=str2double(plt(:,strcmpi(fields_PLOT,'showplanes')))==1; %logical index of plots in which to show slice planes
+  else
+      pltshowplanes=false(size(plt,1),1); %logical index of plots in which to show slice planes
   end
         
 %% Get time segments within the ICEEG file to use
@@ -132,7 +134,8 @@ load([szpath ptsz])
 load([szpath ptsz '_badch']); 
 if size(d,1)>size(d,2); d=d'; end % orient to channels by samples
 [nch,ntp]=size(d); f=1; 
-disp(['Length of data to play for video is ' num2str(round(ntp/sfx)) 'sec'])
+disp(['Total length of ICEEG data: ' num2str(round(ntp/sfx)) ' sec'])
+disp(['Length of data to play for video: ' num2str(diff(S.VIDperiod)) ' sec'])
 
 % error checks for selected time periods
 if any([S.VIDperiod(1) S.BLperiod(1)]<0)
@@ -302,7 +305,7 @@ for i=frametimpoints;
                     plot3(em(depthch,1),em(depthch,2),em(depthch,3),'k.','markersize',10-5*(1/nch*10))
                     if ~pltshowplanes(j); plot3(em(nns,1),em(nns,2),em(nns,3),'k.','markersize',10-5*(1/nch*10)); end 
                 else plot3(em(nns,1),em(nns,2),em(nns,3),'k.','markersize',10-5*(1/nch*10)) %plot electrodes
-                     plot3(em(nns&hitthresh,1),em(nns&hitthresh,2),em(nns&hitthresh,3),'w*','markersize',10-5*(1/nch*10)) %superimpose electrodes that already hit thresh
+                     %plot3(em(nns&hitthresh,1),em(nns&hitthresh,2),em(nns&hitthresh,3),'w*','markersize',10-5*(1/nch*10)) %superimpose electrodes that already hit thresh
                 end
                 cameratoolbar('setmode',''); 
                 litebrain(viewangle{j},.9); 
@@ -373,7 +376,8 @@ end
 
 %cd(szpath) % Save video in the same data folder for that seizure
 %if showlabels; vidfilename=[ptsz '_video']; else vidfilename=[num2str(str2num(pt(3:end))*11) '_' sz]; end
-vidfilename = ['/Users/rchristin/Kleen-Lab/test_videos/' pt '_' sz];
+
+vidfilename = ['/Volumes/KLEEN_DRIVE/OPSCEA/OPSCEADATA/' pt '_' sz];
 v=VideoWriter(vidfilename,'MPEG-4'); 
 v.FrameRate = 15; 
 open(v); 
