@@ -55,16 +55,26 @@ disp(['Running ' pt ', seizure ' sz '...']);
 
 %% Import parameters
 % for specific seizure 
-[~,prm_allPtSz]=xlsread([opsceapath 'OPSCEAparams'],'params'); 
-    fields_SZ=prm_allPtSz(1,:); % header for columns of seizure parameters
+T=readtable([opsceapath 'OPSCEAparams'],'sheet','params');
+prm_allPtSz=table2cell(T); 
+    fields_SZ=fields(T)'; clear T
+    %fields_SZ=prm_allPtSz(1,:); % header for columns of seizure parameters
     prm=prm_allPtSz(strcmp(pt,prm_allPtSz(:,1))&strcmp(sz,prm_allPtSz(:,2)),:);
     if isempty(prm); error(['ATTENTION: No entry exists for ' pt ' seizure ' sz ' in the params master sheet']); end
+    for i=3:6; if isnumeric(prm{i}); prm{i}=num2str(prm{i}); end; end
+    
 % Import parameters for patient's specific plot (layout of video frame)
-[~,plt]=xlsread([opsceapath 'OPSCEAparams'],pt); 
-    fields_PLOT=plt(1,:); plt(1,:)=[]; % header for columns of plotting parameters
+T=readtable([opsceapath 'OPSCEAparams'],'sheet',pt);
+plt=table2cell(T); 
+    %fields_PLOT=plt(1,:); plt(1,:)=[]; % header for columns of plotting parameters
+    fields_PLOT=fields(T)'; clear T
     plottype=plt(:,strcmpi(fields_PLOT,'plottype')); %type of plot for each subplot (accepts: iceeg, surface, depth, or colorbar)
-
+    dEf=find(strcmpi(fields_PLOT,'depthEfirst')); dEl=find(strcmpi(fields_PLOT,'depthElast')); 
+    for i=1:size(plt,1); if strcmp(plt{i,1},'depth'); if isnumeric(plt{i,dEf}); plt{i,dEf}=num2str(plt{i,dEf}); end; if isnumeric(plt{i,dEl}); plt{i,dEl}=num2str(plt{i,dEl}); end; end; end; clear dEf dEl
+    sopac=find(strcmpi(fields_PLOT,'surfacesopacity')); 
+    for i=1:size(plt,1); if strcmp(plt{i,1},'surface'); if ~isempty(plt{i,sopac}); if isnumeric(plt{i,sopac}); plt{i,sopac}=num2str(plt{i,sopac}); end; end; end; end; 
 cd 
+
 %% prepare subplot specifications
     subplotrow=str2double(plt(:,strcmpi(fields_PLOT,'subplotrow')));
     subplotcolumn=str2double(plt(:,strcmpi(fields_PLOT,'subplotcolumn')));
