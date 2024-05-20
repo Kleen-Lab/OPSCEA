@@ -8,11 +8,12 @@ function [d, sfx] = fetch_sz_clip(pt_id,start_dt,end_dt,python_path,py_module_pa
     end
 
     %setup python
-    pyenv(Version=python_path);
+    pyenv(Version=python_path, ExecutionMode="OutOfProcess");
     insert(py.sys.path, int64(0), py_module_path);
+    mod = py.importlib.import_module('opscea_fetch');
     
     %fetch the clip
-    pystruct = py.opscea_fetch.fetch_clip(pt_id, start_dt, end_dt);
+    pystruct = mod.fetch_clip(pt_id, start_dt, end_dt);
     
     %unpack and convert python data to matlab objects
     py_d = pystruct{1};
