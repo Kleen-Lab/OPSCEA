@@ -68,7 +68,8 @@ Additionally, the data should be preprocessed in a specific way. These requireme
  - **cmOPSCEAcool.m**, **cmOPSCEAjet.m** - colormaps adapted from matlab's 
 
 ## Preprocessing  
-ICEEG data should be:
+ICEEG data should have the following preprocessing steps, in order:
+- Anti-aliasing filter applied (we use <255 Hz low pass)
 - Downsampled to 512Hz
 - A notch filter should be applied
 - Bad channel indices should be recorded as explained in [Use your own data](#5-use-your-own-data)
