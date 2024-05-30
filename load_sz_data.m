@@ -17,6 +17,6 @@ function [d, sfx, badch] = load_sz_data(pt_id)
     start_dt = dt{2};
     end_dt = dt{3};
 
-    [d, sfx] = fetch_sz_clip(pt_id, start_dt, end_dt, iceeg_date);
+    [d, sfx] = fetch_opscea_clip(pt_id, start_dt, end_dt, iceeg_date);
     badch = [];
 end
