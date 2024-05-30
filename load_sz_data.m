@@ -21,9 +21,4 @@ function [d, sfx, badch] = load_sz_data(pt_id)
     badch = [];
 
     [d, sfx] = preprocess_clip(d, sfx);
-
-    EEGHILITE;
-    global Q;
-    Q.data = d;
-    Q.sfx = sfx;
 end

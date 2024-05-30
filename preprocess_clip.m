@@ -13,7 +13,7 @@ function [d_preprocessed,sfx_preprocessed] = preprocess_clip(d,sfx)
     for i=1:size(d_zero,2)
         d_anti(:,i)=filtfilt(b,a,d_zero(:,i));
     end
-    d_down = zeros(size(d_anti));
+    %d_down = zeros(size(d_anti));
     sfx_preprocessed = 512;
     for i=1:size(d_anti,2)
        d_down(:,i) = resample(d_anti(:,i), sfx_preprocessed, round(sfx));
