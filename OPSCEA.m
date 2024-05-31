@@ -138,8 +138,12 @@ S=orderfields(S); %alphabetize the structure fields for ease of use/search
 S.sliceplane='c'; % calculate omni-planar slice angles with respect to coronal (c) plane
 
 %% load ICEEG data, and the bad channels verified for that specific data
-load(fullfile(szpath, ptsz), 'd', 'sfx');
-load(fullfile(szpath, [ptsz '_badch']), 'badch');
+if ~exist(szpath, 'dir')
+    load_data(pt);
+else
+    load(fullfile(szpath, ptsz), 'd', 'sfx');
+    load(fullfile(szpath, [ptsz '_badch']), 'badch');
+end
 if size(d,1)>size(d,2); d=d'; end % orient to channels by samples
 [nch,ntp]=size(d); f=1; 
 disp(['Total length of ICEEG data: ' num2str(round(ntp/sfx)) ' sec'])
