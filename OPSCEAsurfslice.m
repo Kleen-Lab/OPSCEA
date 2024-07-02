@@ -1,4 +1,4 @@
-function OPSCEAsurfslice(subject,orientation,elecs,weights,subj_dir,fs_dir,cax,CM,gsp,j,isfirstframe)
+function OPSCEAsurfslice(subject,orientation,elecs,weights,datapath,fs_dir,cax,CM,gsp,j,isfirstframe)
     
     %     (This is a subfunction created as a part of) Omni-planar and surface
     %     casting of epileptiform activity (OPSCEA) (UC Case Number SF2020-281)
@@ -32,9 +32,9 @@ function OPSCEAsurfslice(subject,orientation,elecs,weights,subj_dir,fs_dir,cax,C
     
     %% this section sets up paths and filenames
     fsbin = strcat(fs_dir,'/bin/');
-    subjectpath = strcat(subj_dir,'/',subject,'/Imaging');
-    brainpathmgz = strcat([subjectpath,'/mri/brain.mgz']);
-    aparcpathmgz = strcat([subjectpath,'/mri/aparc+aseg.mgz']);
+    subjimaging = fullfile(datapath, 'imaging', pt);
+    brainpathmgz = fullfile(subjimaging,'mri', 'brain.mgz');
+    aparcpathmgz = fullfile(subjimaging,'mri', 'aparc+aseg.mgz');
     
     bashpath=getenv('PATH');
     newpath=strcat([bashpath, ':',fsbin]); 

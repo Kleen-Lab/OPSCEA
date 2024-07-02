@@ -35,14 +35,13 @@ function OPSCEA(pt,sz,showlabels,jumpto)
 if ~exist('showlabels','var')||isempty(showlabels); showlabels=true; end %default displays ICEEG and depth labels
 if ~exist('jumpto','var')||isempty(jumpto); jumpto=0; end 
 
-opsceapath=['/Volumes/KLEEN_DRIVE/OPSCEA/OPSCEADATA/'];   %path for parameters sheet
-opsceadatapath=['/Volumes/KLEEN_DRIVE/OPSCEA/OPSCEADATA/'];   %path for OPSCEA ICEEG and imaging data
-    if ~exist(opsceadatapath,'dir'); error('Directory for your data needs to be corrected'); end
-cd(opsceapath);
+datapath = getenv('KLEEN_DATA');
+opsceapath = fullfile(datapath, 'opscea');%path for parameters sheet
+imagingpath = fullfile(datapath, 'imaging');
 
 ptsz=[pt '_' sz]; % prefix for filenames of specific seizure
-ptpath=[opsceadatapath pt '/']; % patient's folder
-szpath= [ptpath ptsz '/']; % specific seizure's folder
+ptpath=fullfile(opsceapath, pt); % patient's folder
+szpath=fullfile(ptpath, ptsz); % specific seizure's folder
 disp(['Running ' pt ', seizure ' sz '...']);
 
 %% Initiate global variables
@@ -55,7 +54,7 @@ disp(['Running ' pt ', seizure ' sz '...']);
 
 %% Import parameters
 % for specific seizure 
-T=readtable([opsceapath 'OPSCEAparams'],'sheet','params');
+T=readtable(fullfile(opsceapath, 'OPSCEAparams'),'sheet','params');
 prm_allPtSz=table2cell(T); 
     fields_SZ=fields(T)'; clear T
     %fields_SZ=prm_allPtSz(1,:); % header for columns of seizure parameters
@@ -64,7 +63,7 @@ prm_allPtSz=table2cell(T);
     for i=3:6; if isnumeric(prm{i}); prm{i}=num2str(prm{i}); end; end
     
 % Import parameters for patient's specific plot (layout of video frame)
-T=readtable([opsceapath 'OPSCEAparams'],'sheet',pt);
+T=readtable(fullfile(opsceapath, 'OPSCEAparams'),'sheet',pt);
 plt=table2cell(T); 
     %fields_PLOT=plt(1,:); plt(1,:)=[]; % header for columns of plotting parameters
     fields_PLOT=fields(T)'; clear T
@@ -72,8 +71,7 @@ plt=table2cell(T);
     dEf=find(strcmpi(fields_PLOT,'depthEfirst')); dEl=find(strcmpi(fields_PLOT,'depthElast')); 
     for i=1:size(plt,1); if strcmp(plt{i,1},'depth'); if isnumeric(plt{i,dEf}); plt{i,dEf}=num2str(plt{i,dEf}); end; if isnumeric(plt{i,dEl}); plt{i,dEl}=num2str(plt{i,dEl}); end; end; end; clear dEf dEl
     sopac=find(strcmpi(fields_PLOT,'surfacesopacity')); 
-    for i=1:size(plt,1); if strcmp(plt{i,1},'surface'); if ~isempty(plt{i,sopac}); if isnumeric(plt{i,sopac}); plt{i,sopac}=num2str(plt{i,sopac}); end; end; end; end; 
-cd 
+    for i=1:size(plt,1); if strcmp(plt{i,1},'surface'); if ~isempty(plt{i,sopac}); if isnumeric(plt{i,sopac}); plt{i,sopac}=num2str(plt{i,sopac}); end; end; end; end
 
 %% prepare subplot specifications
     subplotrow=str2double(plt(:,strcmpi(fields_PLOT,'subplotrow')));
@@ -140,8 +138,12 @@ S=orderfields(S); %alphabetize the structure fields for ease of use/search
 S.sliceplane='c'; % calculate omni-planar slice angles with respect to coronal (c) plane
 
 %% load ICEEG data, and the bad channels verified for that specific data
-load([szpath ptsz])
-load([szpath ptsz '_badch']); 
+if ~exist(szpath, 'dir')
+    load_data(pt);
+else
+    load(fullfile(szpath, ptsz), 'd', 'sfx');
+    load(fullfile(szpath, [ptsz '_badch']), 'badch');
+end
 if size(d,1)>size(d,2); d=d'; end % orient to channels by samples
 [nch,ntp]=size(d); f=1; 
 disp(['Total length of ICEEG data: ' num2str(round(ntp/sfx)) ' sec'])
@@ -155,7 +157,7 @@ elseif any([S.VIDperiod(2) S.BLperiod(2)]>ntp)
 end 
 
 %% locate and load electrode file for labels and XYZ coordinates
-    load([ptpath 'Imaging/Elecs/Electrodefile.mat']); 
+    load(fullfile(imagingpath, pt, 'elecs', 'clinical_elecs_all.mat')); 
     if ~exist('anatomy','var'); anatomy=cell(size(elecmatrix,1),4); end
     if size(anatomy,1)>size(elecmatrix,1); anatomy(size(elecmatrix,1)+1:end)=[]; end
     anat=anatomy; clear anatomy; if size(anat,2)>size(anat,1); anat=anat'; end
@@ -182,14 +184,14 @@ isR=nansum(em(:,1))>0; isL=isR~=1; %handy binary indicators for laterality
   end
 
 %% load meshes you want to plot
-meshpath='Imaging/Meshes/';
-Rcortex=load([ptpath meshpath pt '_rh_pial.mat']); loaf.rpial=Rcortex; Rcrtx=Rcortex.cortex; clear Rcortex
-Lcortex=load([ptpath meshpath pt '_lh_pial.mat']); loaf.lpial=Lcortex; Lcrtx=Lcortex.cortex; clear Lcortex
+meshpath=fullfile(imaging, pt, Meshes);
+Rcortex=load(fullfile(meshpath, [pt '_rh_pial.mat'])); loaf.rpial=Rcortex; Rcrtx=Rcortex.cortex; clear Rcortex
+Lcortex=load(fullfile(meshpath, [pt '_lh_pial.mat'])); loaf.lpial=Lcortex; Lcrtx=Lcortex.cortex; clear Lcortex
 
 for i=1:length(surfaces); hippentry(i)=~isempty(strfind(surfaces{i},'hipp')); amygentry(i)=~isempty(strfind(surfaces{i},'amyg')); end; 
 errmsg='ATTN: MISSING A MESH, need to add this mesh file to directory (or remove/omit from frame): ';
-  if any(hippentry); Rhipp=[ptpath meshpath 'subcortical/rHipp_subcort.mat']; Lhipp=Rhipp; Lhipp(end-16)='l'; if exist(Rhipp,'file'); Rhipp=load(Rhipp); Rhipp=Rhipp.cortex;  Lhipp=load(Lhipp); Lhipp=Lhipp.cortex;     else; error([errmsg 'hipp']); end; end
-  if any(amygentry); Ramyg=[ptpath meshpath 'subcortical/rAmgd_subcort.mat']; Lamyg=Ramyg; Lamyg(end-16)='l'; if exist(Ramyg,'file'); Ramyg=load(Ramyg); Ramyg=Ramyg.cortex;  Lamyg=load(Lamyg); Lamyg=Lamyg.cortex;     else; error([errmsg 'amyg']); end; end
+  if any(hippentry); Rhipp=fullfile(meshpath, 'subcortical', 'rHipp_subcort.mat'); Lhipp=Rhipp; Lhipp(end-16)='l'; if exist(Rhipp,'file'); Rhipp=load(Rhipp); Rhipp=Rhipp.cortex;  Lhipp=load(Lhipp); Lhipp=Lhipp.cortex;     else; error([errmsg 'hipp']); end; end
+  if any(amygentry); Ramyg=fullfile(meshpath, 'subcortical', 'rAmgd_subcort.mat']; Lamyg=Ramyg; Lamyg(end-16)='l'; if exist(Ramyg,'file'); Ramyg=load(Ramyg); Ramyg=Ramyg.cortex;  Lamyg=load(Lamyg); Lamyg=Lamyg.cortex;     else; error([errmsg 'amyg']); end; end
 drows=find(strcmp(plottype,'depth'))'; ndepths=length(drows);
 
 depthch=[]; for i=1:length(drows); depthch=[depthch depths{drows(i)}]; end; clear i %identify all depth electrode channels
@@ -213,7 +215,7 @@ end
 
 % Filter out < 1 Hz (and up to nyquist) out to help decrease movement
 % artifact and improve stability during ICEEG trace plotting
-[b,a]=butter(2,[1 round(sfx/2-1)]/(sfx/2),'bandpass'); 
+[b,a]=butter(2,[1 round(sfx/2-1)]/(sfx/2),'bandpass'); %% is this needed since done in preprocessing?
 d(nns,:) = filtfilt(b,a,d(nns,:)')';
 
 % Line-length transform
@@ -332,7 +334,7 @@ for i=frametimpoints;
         eN=depths{j}; [eNID,~,~]=intersect(find(nns),eN); %Get the specific channels for this depth, ignoring bad channels
         if      isempty(eNID); axis off; if isfirstframe; drows(drows==j)=[]; end
         elseif ~isempty(eNID); I.em=em; I.w8s=w8s; I.nns=nns; sliceinfo(j).depthlabels=depthlabels{j}; 
-          OPSCEAsurfslice(pt,S.sliceplane,em(eNID,:),w8s(eNID),opsceadatapath,[],S.cax,S.cm,S.gsp,j,isfirstframe)
+          OPSCEAsurfslice(pt,S.sliceplane,em(eNID,:),w8s(eNID),datapath,[],S.cax,S.cm,S.gsp,j,isfirstframe)
           plot3(em(eNID,1),em(eNID,2)+((S.sliceplane=='c')),em(eNID,3),'k-'); % depth probe (line between electrodes)
           plot3(em(eNID,1),em(eNID,2)+((S.sliceplane=='c')),em(eNID,3),'k.','markersize',10); % depth electrodes (dots)
           cameratoolbar('setmode','')
@@ -387,7 +389,7 @@ end
 %cd(szpath) % Save video in the same data folder for that seizure
 %if showlabels; vidfilename=[ptsz '_video']; else vidfilename=[num2str(str2num(pt(3:end))*11) '_' sz]; end
 
-vidfilename = ['/Volumes/KLEEN_DRIVE/OPSCEA/OPSCEADATA/' pt '_' sz];
+vidfilename = fullfile(datapath, 'ictal_cinema_library', [pt '_' sz]);
 v=VideoWriter(vidfilename,'MPEG-4'); 
 v.FrameRate = 15; 
 open(v); 
