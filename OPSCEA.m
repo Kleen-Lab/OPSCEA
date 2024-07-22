@@ -349,7 +349,14 @@ end
 %cd(szpath) % Save video in the same data folder for that seizure
 %if showlabels; vidfilename=[ptsz '_video']; else vidfilename=[num2str(str2num(pt(3:end))*11) '_' sz]; end
 
-vidfilename = fullfile(datapath, 'ictal_cinema_library',pt, [pt '_' sz]);
+if test
+    viddir = fullfile(datapath, 'ictal_cinema_library', pt, 'test');
+else
+    viddir = fullfile(datapath, 'ictal_cinema_library',pt);
+end
+vidfn = [pt '_' sz];
+vidfilename = fullfile(viddir, vidfn);
+mkdir(viddir);
 v=VideoWriter(vidfilename,'MPEG-4');
 v.FrameRate = 15;
 open(v);
