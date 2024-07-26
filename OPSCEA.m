@@ -65,7 +65,8 @@ if ~exist(szpath, 'dir')
     error(['ATTENTION: No entry exists for ' pt ' seizure ' sz ' in the data root']);
 end
 
-load(ptparams, 'ecog', 'cb', 'surface', 'depth');
+load(ptparams, 'layout', 'ecog', 'cb', 'surface', 'depth');
+tiles.layout = layout; clear layout;
 tiles.ecog = ecog; clear ecog;
 tiles.cb = cb; clear cb;
 tiles.surface = surface; clear surface;
@@ -306,7 +307,8 @@ for i=frametimpoints
         fprintf('Will be done at approx: '); disp(datetime( clock, 'InputFormat', 'HH:mm:ss' ) + seconds(timerem_sec))
     end; tic
     isfirstframe = i==jumpto;
-    subplot(1,1,1); %clears all axes, to start fresh each frame
+    %subplot(1,1,1); %clears all axes, to start fresh each frame
+    tiledlayout(tiles.layout.rows, tiles.layout.cols);
     w8s=LL(:,i); w8s(~nns)=0; %make weights for electrodes, and set NaNs (bad channels) to zero
 
     % plot the different sections
@@ -536,5 +538,5 @@ end
 end
 
 function tile(s)
-subplot(s.row, s.col, s.start:s.stop);
+nexttile(s.tile, [s.rows s.cols]);
 end
