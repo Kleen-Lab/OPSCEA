@@ -1,4 +1,4 @@
-function OPSCEAsurfslice(subject,orientation,elecs,weights,datapath,fs_dir,cax,CM,gsp,j,isfirstframe)
+function OPSCEAsurfslice(subject,orientation,elecs,weights,datapath,fs_dir,cax,CM,gsp,j,offset,isfirstframe)
     
     %     (This is a subfunction created as a part of) Omni-planar and surface
     %     casting of epileptiform activity (OPSCEA) (UC Case Number SF2020-281)
@@ -32,7 +32,7 @@ function OPSCEAsurfslice(subject,orientation,elecs,weights,datapath,fs_dir,cax,C
     
     %% this section sets up paths and filenames
     fsbin = strcat(fs_dir,'/bin/');
-    subjimaging = fullfile(datapath, 'imaging', pt);
+    subjimaging = fullfile(datapath, 'imaging', subject);
     brainpathmgz = fullfile(subjimaging,'mri', 'brain.mgz');
     aparcpathmgz = fullfile(subjimaging,'mri', 'aparc+aseg.mgz');
     
@@ -91,9 +91,9 @@ function OPSCEAsurfslice(subject,orientation,elecs,weights,datapath,fs_dir,cax,C
         XX = meshgrid(-128:128).*cos(theta) + elecs(e1,1);
         YY =sin(theta).*meshgrid(-128:128) + elecs(e1,2); %get coordinates in space
         sliceinfo(j).viewangle(1:3)=[-YY(1,end) 128 0];
-        theta=theta+[pi*loaf.isLdepth(j)]; 
-        if (m)>10; theta=theta+[pi*loaf.isRdepth(j)]; end
-        azel = circ_rad2ang(theta-pi) + 20*(-1*loaf.isRdepth(j) + 1*loaf.isLdepth(j));
+        theta=theta+[pi*loaf.isLdepth(j-offset)]; 
+        if (m)>10; theta=theta+[pi*loaf.isRdepth(j-offset)]; end
+        azel = circ_rad2ang(theta-pi) + 20*(-1*loaf.isRdepth(j-offset) + 1*loaf.isLdepth(j-offset));
         sliceinfo(j).XX=XX; sliceinfo(j).YY=YY; sliceinfo(j).ZZ=ZZ; 
         sliceinfo(j).xslice=xslice; sliceinfo(j).yslice=yslice; sliceinfo(j).zslice=zslice;
     
