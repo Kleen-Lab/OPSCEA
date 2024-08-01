@@ -69,42 +69,26 @@ load_clip_params(clipparams, test);
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% PLOTTING TIME!
-nplots = 2 + height(tiles.depth) + height(tiles.surface);
-sliceinfo=[]; loaf.vrf=[]; loaf.apasrf=[]; loaf.normloaf=[];
-sliceinfo.viewangle=zeros(nplots,3); sliceinfo.azel=[]; sliceinfo.corners=[]; 
-%loaf.isR=isR; loaf.isL=isL;
-%% Implement isL/isR fix proposed by @aarongeller
-%loaf.isRdepth=isRdepth; loaf.isLdepth=isLdepth;
-clear F;
-ytl=eleclabels(nns,1);
-nch=length(find(nns));
+[ytl, nch, chanorder] = prepare_plotting(eleclabels, nns, d, showlabels);
 
-chanorder=1:size(d(nns,:),1); if ~showlabels; chanorder=randperm(size(d(nns,:),1)); end % if desired, blinds user by randomizing channel order
 figure('color','w','Position',[1 5 1280 700]);
 frametimpoints=jumpto:S.fram:ntp-sfx*S.iceegwin; % timepoint index of each frame to be rendered
+clear F;
 f = 1;
 for i=frametimpoints
     if i==jumpto+2*S.fram
-        timerem_sec=toc*length(frametimpoints); 
+        timerem_sec=toc*length(frametimpoints);
         disp(['Length of data is ' num2str(ntp/sfx) 'sec']); disp(datetime);
         disp([' -- VIDEO ETA: ' num2str(floor(timerem_sec/3600)) 'h ' num2str(ceil(mod(timerem_sec,3600)/60)) 'm -- ']);
         fprintf('Will be done at approx: '); disp(datetime( clock, 'InputFormat', 'HH:mm:ss' ) + seconds(timerem_sec))
     end; tic
     isfirstframe = i==jumpto;
-    %subplot(1,1,1); %clears all axes, to start fresh each frame
-    tiledlayout(tiles.layout.rows, tiles.layout.cols);
-    w8s=LL(:,i); 
-    w8s(~nns)=0; %make weights for electrodes, and set NaNs (bad channels) to zero
+    % Save frame into an ongoing sequential structure
 
-    % plot the different sections
-    plot_ecog(tiles.ecog, d, sfx, nch, nns, i, scl, ts, ytl, chanorder, showlabels, S);
-    plot_cb(tiles.cb, S);
-    plot_surfaces(tiles.surface, pt, em, w8s, nns, depthch, nch, axislim, loaf, S);
-    plot_depths(tiles, nns, isfirstframe, em, w8s, pt, datapath, showlabels, axislim, S);
-
+    plot_frame(i, isfirstframe, LL, d, sfx, nch, nns, scl, ts, ytl, chanorder, showlabels, pt, em, depthch, axislim, datapath);
     %rotation (first few frames of movie) to help user orientation: start
     %all slices from inferior view and rotate slowly to usual head-on view
-    if isfirstframe 
+    if isfirstframe
         numrotationframes=15;
         if height(tiles.depth) > 0
             offset = 2 + height(tiles.surface);
@@ -115,19 +99,18 @@ for i=frametimpoints
             for rf=1:numrotationframes
                 for dpth=1:height(tiles.depth)
                     depth = tiles.depth(dpth, :);
-                    tile(depth); 
-                    view(sliceinfo(dpth+offset).azelorient(1,rf),sliceinfo(dpth+offset).azelorient(2,rf)); 
+                    tile(depth);
+                    view(sliceinfo(dpth+offset).azelorient(1,rf),sliceinfo(dpth+offset).azelorient(2,rf));
                     if rf==1
-                        litebrain('i',.5); 
+                        litebrain('i',.5);
                     end
                 end
                 pause(.25);
-                F(f)=getframe(gcf); 
+                F(f)=getframe(gcf);
                 f=f+1;
             end
         end
     end
-    % Save frame into an ongoing sequential structure
     F(f)=getframe(gcf); 
     f=f+1; 
     fprintf('Saved frame - '); 
@@ -560,4 +543,44 @@ scl=2/diff(prctile(reshape(d,1,numel(d)),S.iceeg_scale));
 S.marg=round(S.marg*sfx); %offset of real-time LL txform from beginning of viewing window
 jumpto=S.marg+round(jumpto*sfx); %Jump ahead (sec), so video starts this much farther into the file if desired. Input argument.
 S.fram=round(sfx/S.fps);
+end
+
+function plot_frame(i, isfirstframe, LL, d, sfx, nch, nns, scl, ts, ytl, chanorder, showlabels, pt, em, depthch, axislim, datapath)
+global tiles;
+global S;
+global loaf;
+
+
+%subplot(1,1,1); %clears all axes, to start fresh each frame
+tiledlayout(tiles.layout.rows, tiles.layout.cols);
+w8s=LL(:,i);
+w8s(~nns)=0; %make weights for electrodes, and set NaNs (bad channels) to zero
+
+% plot the different sections
+plot_ecog(tiles.ecog, d, sfx, nch, nns, i, scl, ts, ytl, chanorder, showlabels, S);
+plot_cb(tiles.cb, S);
+plot_surfaces(tiles.surface, pt, em, w8s, nns, depthch, nch, axislim, loaf, S);
+plot_depths(tiles, nns, isfirstframe, em, w8s, pt, datapath, showlabels, axislim, S);
+end
+
+function [ytl, nch, chanorder] = prepare_plotting(eleclabels, nns, d, showlabels)
+global tiles;
+global sliceinfo;
+global loaf;
+
+nplots = 2 + height(tiles.depth) + height(tiles.surface);
+sliceinfo=[]; 
+loaf.vrf=[]; 
+loaf.apasrf=[]; 
+loaf.normloaf=[];
+sliceinfo.viewangle=zeros(nplots,3); 
+sliceinfo.azel=[]; 
+sliceinfo.corners=[]; 
+ytl=eleclabels(nns,1);
+nch=length(find(nns));
+
+chanorder=1:size(d(nns,:),1); 
+if ~showlabels
+    chanorder=randperm(size(d(nns,:),1));
+end % if desired, blinds user by randomizing channel order
 end
