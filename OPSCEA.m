@@ -73,6 +73,7 @@ load_clip_params(clipparams, test);
 
 figure('color','w','Position',[1 5 1280 700]);
 frametimpoints=jumpto:S.fram:ntp-sfx*S.iceegwin; % timepoint index of each frame to be rendered
+
 clear F;
 f = 1;
 for i=frametimpoints
@@ -83,39 +84,20 @@ for i=frametimpoints
         fprintf('Will be done at approx: '); disp(datetime( clock, 'InputFormat', 'HH:mm:ss' ) + seconds(timerem_sec))
     end; tic
     isfirstframe = i==jumpto;
-    % Save frame into an ongoing sequential structure
 
+    % Save each frame into the ongoing sequential structure F
     plot_frame(i, isfirstframe, LL, d, sfx, nch, nns, scl, ts, ytl, chanorder, showlabels, pt, em, depthch, axislim, datapath);
-    %rotation (first few frames of movie) to help user orientation: start
-    %all slices from inferior view and rotate slowly to usual head-on view
+    
     if isfirstframe
-        numrotationframes=15;
-        if height(tiles.depth) > 0
-            offset = 2 + height(tiles.surface);
-            for dpth=1:height(tiles.depth)
-                sliceinfo(dpth+offset).azelorient=[linspace(sign(sliceinfo(dpth+offset).azel(1))*180,sliceinfo(dpth+offset).azel(1),numrotationframes);
-                    linspace(-90,sliceinfo(dpth+offset).azel(2),numrotationframes)];
-            end
-            for rf=1:numrotationframes
-                for dpth=1:height(tiles.depth)
-                    depth = tiles.depth(dpth, :);
-                    tile(depth);
-                    view(sliceinfo(dpth+offset).azelorient(1,rf),sliceinfo(dpth+offset).azelorient(2,rf));
-                    if rf==1
-                        litebrain('i',.5);
-                    end
-                end
-                pause(.25);
-                F(f)=getframe(gcf);
-                f=f+1;
-            end
-        end
+        F=plot_rotation_animation(F,f,tiles,sliceinfo);
     end
+
     F(f)=getframe(gcf); 
     f=f+1; 
     fprintf('Saved frame - '); 
     toc
 end
+
 
 %cd(szpath) % Save video in the same data folder for that seizure
 %if showlabels; vidfilename=[ptsz '_video']; else vidfilename=[num2str(str2num(pt(3:end))*11) '_' sz]; end

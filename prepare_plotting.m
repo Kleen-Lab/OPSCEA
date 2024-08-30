@@ -14,8 +14,10 @@ sliceinfo.corners=[];
 ytl=eleclabels(nns,1);
 nch=length(find(nns));
 
-chanorder=1:size(d(nns,:),1); 
+chanorder=1:size(d(nns,:),1);
+
+% if desired, blinds user by randomizing channel order
 if ~showlabels
     chanorder=randperm(size(d(nns,:),1));
-end % if desired, blinds user by randomizing channel order
+end 
 end
