@@ -3,15 +3,6 @@ global S;
 global tiles;
 global loaf;
 
-% % Instantiate variables that depend on seizure data to be empty
-% d = [];
-% LL = [];
-% sfx = 0;
-% ntp = 0;
-% scl = 1;
-% ts = [];
-% jumpto = 0;
-
 %% locate and load electrode file for labels and XYZ coordinates
 load(fullfile(imagingpath, pt, 'elecs', 'clinical_elecs_all.mat'), 'anatomy', 'elecmatrix', 'eleclabels');
 if ~exist('anatomy','var')
