@@ -1,9 +1,14 @@
-function load_clip_params(clipparams, test)
+function load_clip_params(clipparams, test, app)
 global S;
 
-load(clipparams, 'vidstart', 'vidstop', 'llw', 'iceeg_scale', 'fps', 'cax', 'gsp', 'cm', 'iceegwin', 'marg', 'slicebright');
+if exist('app', 'var')
+    [vidstart, vidstop, blstart, blstop, llw, iceeg_scale, fps, cax, gsp, cm, iceegwin, marg, slicebright, etype] = process_clip_param_inputs(app);
+else
+    load(clipparams, 'vidstart', 'vidstop', 'llw', 'iceeg_scale', 'fps', 'cax', 'gsp', 'cm', 'iceegwin', 'marg', 'slicebright');
+    load(clipparams, 'blstart', 'blstop') 
+end
+
 S.VIDperiod=[vidstart vidstop];
-load(clipparams, 'blstart', 'blstop')
 S.BLperiod=[blstart blstop];
 
 %transform, scaling, and display options
