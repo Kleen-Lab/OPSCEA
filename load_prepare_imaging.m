@@ -64,6 +64,8 @@ Lcrtx=Lcortex.cortex;
 loaf.Lcrtx = Lcrtx;
 clear Lcortex
 
+hippentry = [];
+amygentry =[];
 for i=1:height(tiles.surface)
     hippentry(i)=~isempty(strfind(tiles.surface.surfaces,'hipp'));
     amygentry(i)=~isempty(strfind(tiles.surface.surfaces,'amyg')); 
