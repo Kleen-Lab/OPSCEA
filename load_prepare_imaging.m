@@ -4,7 +4,11 @@ global tiles;
 global loaf;
 
 %% locate and load electrode file for labels and XYZ coordinates
-load(fullfile(imagingpath, pt, 'elecs', 'clinical_elecs_all.mat'), 'anatomy', 'elecmatrix', 'eleclabels');
+if exist(fullfile(imagingpath, pt, 'elecs', 'clinical_elecs_all.mat'),'file')
+    load(fullfile(imagingpath, pt, 'elecs', 'clinical_elecs_all.mat'), 'anatomy', 'elecmatrix', 'eleclabels');
+else
+    [elecmatrix,eleclabels,anatomy]=getelecs(pt,1); %dependency: Kleen Lab matlab_utilities repo
+end
 if ~exist('anatomy','var')
     anatomy=cell(size(elecmatrix,1),4);
 end
