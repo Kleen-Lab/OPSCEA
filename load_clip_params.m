@@ -3,10 +3,26 @@ global S;
 
 if exist('app', 'var')
     [vidstart, vidstop, blstart, blstop, llw, iceeg_scale, fps, cax, gsp, cm, iceegwin, marg, slicebright, etype] = process_clip_param_inputs(app);
+    % Need to also load sfx
+    
+    pt = app.PatientIDEditField.Value;
+    sz = app.ClipIDEditField.Value;
+    ptsz = [pt '_' sz];
+    datapath = getenv('KLEEN_DATA');
+    opsceapath = fullfile(datapath, 'opscea'); %path for parameters sheet
+    ptpath = fullfile(opsceapath, pt); % patient's folder
+    szpath = fullfile(ptpath, ptsz); % specific seizure's folder
 else
     load(clipparams, 'vidstart', 'vidstop', 'llw', 'iceeg_scale', 'fps', 'cax', 'gsp', 'cm', 'iceegwin', 'marg', 'slicebright');
     load(clipparams, 'blstart', 'blstop') 
+
+    szpath = replace(clipparams, "/clip_params.mat", "");
+    splitpath = split(szpath, '/');
+    ptsz = splitpath{end};
+
 end
+
+load(fullfile(szpath, ptsz), 'sfx');
 
 S.VIDperiod=[vidstart vidstop];
 S.BLperiod=[blstart blstop];
@@ -43,5 +59,13 @@ S.VIDperiod=[S.VIDperiod(1)-S.marg   S.VIDperiod(2)+S.iceegwin-S.marg];
 S.sliceplane='c'; % calculate omni-planar slice angles with respect to coronal (c) plane
 
 S=orderfields(S); %alphabetize the structure fields for ease of use/search
+
+% Scaling ICEEG and setting windows for simultaneous trace-based display
+S.iceeg_scale=S.iceeg_scale+(100-S.iceeg_scale)/2; 
+S.iceeg_scale=[100-S.iceeg_scale S.iceeg_scale]; %conversion to two-tailed percentile
+
+S.marg=round(S.marg*sfx); %offset of real-time LL txform from beginning of viewing window
+S.fram=round(sfx/S.fps);
+
 clear llw iceeg_scale fps cax gsp cm iceegwin marg slicebright;
 end

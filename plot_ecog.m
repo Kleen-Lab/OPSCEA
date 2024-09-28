@@ -3,8 +3,8 @@ function plot_ecog(ecogtile, d, sfx, nch, nns, t, scl, ts, ytl, chanorder, showl
 tile(ecogtile); %JK NOTE 8/2024: we should replace this in all opscea with the single line of code in the function, or at least a less generic filename (e.g. tile_opscea.m)
 
 if ~isempty(d)
-    dtoplot=d(nns,(t-round(S.marg*sfx)+1):(t-round(S.marg*sfx)+1)+sfx*S.iceegwin);
-    tstoplot=ts((t-round(S.marg*sfx)+1):(t-round(S.marg*sfx)+1)+sfx*S.iceegwin);
+    dtoplot=d(nns,(t-round(S.marg)+1):(t-round(S.marg)+1)+sfx*S.iceegwin);
+    tstoplot=ts((t-round(S.marg)+1):(t-round(S.marg)+1)+sfx*S.iceegwin);
     shift = repmat(-1*(1:nch)',1,size(dtoplot,2));
     plot(tstoplot,dtoplot*scl+shift,'k');
     ylim([-nch-1 0])

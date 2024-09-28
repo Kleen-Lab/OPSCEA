@@ -63,13 +63,6 @@ d=d(:,vidperiodidx); ntp=length(vidperiodidx);
 LL=LL(:,vidperiodidx);
 ts=ts(vidperiodidx);
 
-% Scaling ICEEG and setting windows for simultaneous trace-based display
-S.iceeg_scale=S.iceeg_scale+(100-S.iceeg_scale)/2; 
-S.iceeg_scale=[100-S.iceeg_scale S.iceeg_scale]; %conversion to two-tailed percentile
-scl=2/diff(prctile(reshape(d,1,numel(d)),S.iceeg_scale));
-% scl=1e4/diff(prctile(make1d(d),S.ecog_scale)); % Raw ECoG scaling for display
-
-S.marg=round(S.marg*sfx); %offset of real-time LL txform from beginning of viewing window
+scl=2/diff(prctile(reshape(d,1,numel(d)),S.iceeg_scale)); % scl=1e4/diff(prctile(make1d(d),S.ecog_scale)); % Raw ECoG scaling for display
 jumpto=S.marg+round(jumpto*sfx); %Jump ahead (sec), so video starts this much farther into the file if desired. Input argument.
-S.fram=round(sfx/S.fps);
 end
