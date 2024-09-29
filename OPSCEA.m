@@ -89,11 +89,11 @@ for i=frametimpoints
     plot_frame(i, isfirstframe, LL, d, sfx, nch, nns, scl, ts, ytl, chanorder, showlabels, pt, em, depthch, axislim, datapath);
     
     if isfirstframe
-        F=plot_rotation_animation(F,f,tiles,sliceinfo);
+        F = plot_rotation_animation(f, tiles, sliceinfo);
     end
 
-    F(f)=getframe(gcf); 
-    f=f+1; 
+    F(f) = getframe(gcf); 
+    f = f+1; 
     fprintf('Saved frame - '); 
     toc
 end
