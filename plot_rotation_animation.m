@@ -1,4 +1,4 @@
-function F=plot_rotation_animation(F,f,tiles,sliceinfo)
+function F = plot_rotation_animation(f,tiles,sliceinfo)
 %rotation animation (first few frames of movie) to help user orientation: start
 %all slices from inferior view and rotate slowly to usual head-on view
 
