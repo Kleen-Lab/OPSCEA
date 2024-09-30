@@ -64,5 +64,5 @@ LL=LL(:,vidperiodidx);
 ts=ts(vidperiodidx);
 
 scl=2/diff(prctile(reshape(d,1,numel(d)),S.iceeg_scale)); % scl=1e4/diff(prctile(make1d(d),S.ecog_scale)); % Raw ECoG scaling for display
-jumpto=S.marg+round(jumpto*sfx); %Jump ahead (sec), so video starts this much farther into the file if desired. Input argument.
+% jumpto=S.marg+round(jumpto*sfx); %Jump ahead (sec), so video starts this much farther into the file if desired. Input argument.
 end
