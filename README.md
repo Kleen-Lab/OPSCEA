@@ -12,6 +12,11 @@ Kleen JK, Speidel B, Baud MO, Rao VR, Ammanuel SG, Hamilton LS, Chang EF, Know
 
 The `OPSCEA` MATLAB package. All code included to generate a video of ictal activity projected on a reconstructed brain. Documentation with additional instructions and sample data are provided as well.
 
+
+![cover]($HOME/Documents/OPSCEA_cover.png)
+
+
+
 ## Package setup.
 ### 1. Required Software
 
