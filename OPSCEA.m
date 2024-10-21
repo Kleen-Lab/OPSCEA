@@ -107,10 +107,10 @@ if test
 else
     viddir = fullfile(datapath, 'ictal_cinema_library',pt);
 end
-vidfn = [pt '_' sz];
+vidfn = [pt '_' sz '_shu_2'];
 vidfilename = fullfile(viddir, vidfn);
 mkdir(viddir);
-v=VideoWriter(vidfilename,'MPEG-4');
+v=VideoWriter(vidfilename,'Motion JPEG AVI');
 v.FrameRate = 15;
 open(v);
 writeVideo(v,F);
