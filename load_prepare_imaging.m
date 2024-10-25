@@ -35,7 +35,7 @@ eleclabels(EKGorREF,:)=[];
 nch = length(em);
 nns = true(nch,1); %nns if "not NaNs", a vector of whether the channel is a bad channel or not, essentially, for plotting efficiency later
 
-loaf.isR=nansum(em(:,1))>0; 
+loaf.isR=sum(em(:,1), 'omitnan')>0; 
 loaf.isL=loaf.isR~=1; %handy binary indicators for laterality
 
 %% Implement isL/isR fix suggested by @aarongeller, allows the specifying of th side for all depths of bilateral implants
