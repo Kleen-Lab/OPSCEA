@@ -71,8 +71,10 @@ clear Lcortex
 hippentry = [];
 amygentry =[];
 for i=1:height(tiles.surface)
-    hippentry(i)=~isempty(strfind(tiles.surface.surfaces,'hipp'));
-    amygentry(i)=~isempty(strfind(tiles.surface.surfaces,'amyg')); 
+    result = strfind(tiles.surface.surfaces(i),'hipp');
+    hippentry(i)=~isempty(result{1});
+    result = strfind(tiles.surface.surfaces(i),'amyg');
+    amygentry(i)=~isempty(result{1}); 
 end
 errmsg='ATTN: MISSING A MESH, need to add this mesh file to directory (or remove/omit from frame): ';
 if any(hippentry)
