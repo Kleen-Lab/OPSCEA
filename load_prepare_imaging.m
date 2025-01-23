@@ -33,7 +33,8 @@ eleclabels(EKGorREF,:)=[];
 
 % When there is seizure data present, nns will depend on that data instead
 nch = length(em);
-nns = true(nch,1); %nns if "not NaNs", a vector of whether the channel is a bad channel or not, essentially, for plotting efficiency later
+ns = find(isnan(mean(em, 2))); % bad channels
+nns = true(nch,1); nns(ns) = 0; %nns if "not NaNs", a vector of whether the channel is a bad channel or not, essentially, for plotting efficiency later
 
 loaf.isR=sum(em(:,1), 'omitnan')>0; 
 loaf.isL=loaf.isR~=1; %handy binary indicators for laterality
