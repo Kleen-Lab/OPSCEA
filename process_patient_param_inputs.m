@@ -50,7 +50,12 @@ labels = depthElectrodesTable.labels;
 depths = cell(numRows, 1);
 color = cell(numRows, 3);
 for i=1:numRows
-    depths{i, 1} = transpose(double(split(depthElectrodesTable.depths(i), ",")));
+    % DEPRECATED: assumes depthElectrodesTable.depths(i) is a
+    % comma-delimited list start,start+1,...,end
+    % depths{i, 1} = transpose(double(split(depthElectrodesTable.depths(i), ",")));
+    
+    % Assumes depthElectrodesTable.depths(i) has the format start:end
+    depths{i, 1} = eval(depthElectrodesTable.depths(i));
     color(i, :) = num2cell(double(split(depthElectrodesTable.color(i), ",")));
 end
 color = double(string(color));

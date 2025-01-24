@@ -4,7 +4,7 @@ global tiles;
 if exist('app', 'var')
     [layout, ecog, cb, surface, depth] = process_patient_param_inputs(app);
 else
-    load(ptparams, 'layout', 'ecog', 'cb', 'surface', 'depth');
+    load(ptparams, 'layout', 'ecog', 'cb', 'surface', 'depth');    
 end
 
 tiles.layout = layout; clear layout;
