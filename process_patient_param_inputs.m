@@ -39,9 +39,9 @@ surface = table(zoom, surfaces, opacity, view, show, rows, cols, tile);
 
 % Patient params: depth electrodes
 depthElectrodesTable = app.DepthElectrodesTable.Data;
+tile = double(depthElectrodesTable.tile);
 rows = double(depthElectrodesTable.rows);
 cols = double(depthElectrodesTable.cols);
-tile = double(depthElectrodesTable.tile);
 zoom = double(depthElectrodesTable.zoom);
 labels = depthElectrodesTable.labels;
 

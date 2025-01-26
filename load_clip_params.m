@@ -27,19 +27,31 @@ load(fullfile(szpath, ptsz), 'sfx');
 S.VIDperiod=[vidstart vidstop];
 S.BLperiod=[blstart blstop];
 
-%transform, scaling, and display options
-S.llw=llw;
-S.iceeg_scale=iceeg_scale; %percentile (number >50 and <100), used here similar to gain ICEEG waveform display, usually 95
-S.fps=fps;
+% transform, scaling, and display options
+% need defaults for if clip_params.mat is not fully configured yet (e.g.
+% outputs from EEGHILITE only include vidstart, vidstop, blstart, blstop)
+S.llw = exist('llw', 'var') && llw || 0.25;
+S.iceeg_scale= exist('iceeg_scale', 'var') && iceeg_scale || 97; %percentile (number >50 and <100), used here similar to gain ICEEG waveform display, usually 95
+S.fps = exist('fps', 'var') && fps || 5;
 if test
     S.fps = 0.25;
 end
-S.cax=cax; %color axis for heatmap
-S.gsp=gsp; %gaussian spreading parameter (default 10)
+
+%color axis for heatmap
+if exist('cax', 'var')
+    S.cax = cax;
+else
+    S.cax = [-20 20];
+end
+
+S.gsp = exist('gsp', 'var') && gsp || 25; %gaussian spreading parameter (default 10)
 params={'iceeg_scale','fps','cax','gsp'};
 paramsnans=isnan([(isnan(S.iceeg_scale) | S.iceeg_scale<=50 | S.iceeg_scale>=100)   S.fps   any(isnan(S.cax)) S.gsp]);
 if any(paramsnans)
     error(['ATTENTION OPSCEA USER: The "' params{paramsnans} '" term(s) is/are in an incorrect format (perhaps number instead of string), check excel seizure parameter sheet']);
+end
+if ~exist('cm', 'var')
+    cm = 'cmOPSCEAjet';
 end
 switch cm
     case 'cmOPSCEAcool'
@@ -47,10 +59,10 @@ switch cm
     case 'cmOPSCEAjet'
         cm=cmOPSCEAjet;
 end
-S.cm=cm; %colormap to use for heatmap
-S.iceegwin=iceegwin; %how much trace-based ICEEG to view at a time in the ICEEG window
-S.marg=marg; %offset of real-time LL txform from beginning of viewing window (in sec; converts to samples below)
-S.slicebright=slicebright;
+S.cm = cm; %colormap to use for heatmap
+S.iceegwin = exist('iceegwin', 'var') && iceegwin || 5; %how much trace-based ICEEG to view at a time in the ICEEG window
+S.marg = exist('marg', 'var') && marg || 1; %offset of real-time LL txform from beginning of viewing window (in sec; converts to samples below)
+S.slicebright = exist('slicebright', 'var') && slicebright || 25;
 if isnan(S.slicebright); S.slicebright=0; end %brighten up slices (usually 0 to 50)
 
 % additional adjustment for display window
