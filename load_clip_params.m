@@ -31,7 +31,18 @@ S.BLperiod=[blstart blstop];
 % need defaults for if clip_params.mat is not fully configured yet (e.g.
 % outputs from EEGHILITE only include vidstart, vidstop, blstart, blstop)
 S.llw = exist('llw', 'var') && llw || 0.25;
-S.iceeg_scale= exist('iceeg_scale', 'var') && iceeg_scale || 97; %percentile (number >50 and <100), used here similar to gain ICEEG waveform display, usually 95
+
+% percentile (number >50 and <100), used here similar to gain ICEEG waveform display, usually 95
+% Note(steph): for some reason, this logic isn't working anymore so need to
+% use explicit if-else
+% S.iceeg_scale = exist('iceeg_scale', 'var') && iceeg_scale || 97
+
+if exist('iceeg_scale', 'var')
+    S.iceeg_scale = 95;
+else
+    S.iceeg_scale = 97;
+end
+
 S.fps = exist('fps', 'var') && fps || 5;
 if test
     S.fps = 0.25;
@@ -60,9 +71,27 @@ switch cm
         cm=cmOPSCEAjet;
 end
 S.cm = cm; %colormap to use for heatmap
-S.iceegwin = exist('iceegwin', 'var') && iceegwin || 5; %how much trace-based ICEEG to view at a time in the ICEEG window
-S.marg = exist('marg', 'var') && marg || 1; %offset of real-time LL txform from beginning of viewing window (in sec; converts to samples below)
-S.slicebright = exist('slicebright', 'var') && slicebright || 25;
+
+%how much trace-based ICEEG to view at a time in the ICEEG window
+if exist('iceegwin', 'var')
+    S.iceegwin = iceegwin;
+else
+    S.iceegwin = 5;
+end
+
+%offset of real-time LL txform from beginning of viewing window (in sec; converts to samples below)
+if exist('marg', 'var')
+    S.marg = marg;
+else
+    S.marg = 1;
+end
+
+if exist('slicebright', 'var')
+    S.slicebright = slicebright;
+else
+    S.slicebright = 25;
+end
+
 if isnan(S.slicebright); S.slicebright=0; end %brighten up slices (usually 0 to 50)
 
 % additional adjustment for display window
