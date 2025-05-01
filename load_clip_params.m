@@ -16,9 +16,12 @@ else
     load(clipparams, 'vidstart', 'vidstop', 'llw', 'iceeg_scale', 'fps', 'cax', 'gsp', 'cm', 'iceegwin', 'marg', 'slicebright');
     load(clipparams, 'blstart', 'blstop') 
 
-    szpath = replace(clipparams, "/clip_params.mat", "");
-    splitpath = split(szpath, '/');
-    ptsz = splitpath{end};
+    % szpath = replace(clipparams, "/clip_params.mat", "");
+    % splitpath = split(szpath, '/');
+    % ptsz = splitpath{end};
+    splitpath = split(clipparams, '/');
+    ptsz = replace(splitpath{end}, "_params.mat", "");
+    szpath = replace(clipparams, [ptsz '_params.mat'], "");
 
 end
 
@@ -55,7 +58,13 @@ else
     S.cax = [-20 20];
 end
 
-S.gsp = exist('gsp', 'var') && gsp || 25; %gaussian spreading parameter (default 10)
+%gaussian spreading parameter (default 10)
+if exist('gsp', 'var')
+    S.gsp = gsp;
+else
+    S.gsp = 25;
+end
+
 params={'iceeg_scale','fps','cax','gsp'};
 paramsnans=isnan([(isnan(S.iceeg_scale) | S.iceeg_scale<=50 | S.iceeg_scale>=100)   S.fps   any(isnan(S.cax)) S.gsp]);
 if any(paramsnans)
