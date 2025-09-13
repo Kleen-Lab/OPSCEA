@@ -47,7 +47,8 @@ ptsz=[pt '_' sz]; % prefix for filenames of specific seizure
 ptpath=fullfile(opsceapath, pt); % patient's folder
 ptparams = fullfile(ptpath, 'patient_params.mat');
 szpath=fullfile(ptpath, ptsz); % specific seizure's folder
-clipparams = fullfile(szpath, 'clip_params.mat');
+clipparams = fullfile(szpath, [ptsz '_params.mat']);
+% clipparams = fullfile(szpath, 'clip_params.mat');
 disp(['Running ' pt ', seizure ' sz '...']);
 
 %% Initiate global variables
@@ -103,14 +104,17 @@ end
 %if showlabels; vidfilename=[ptsz '_video']; else vidfilename=[num2str(str2num(pt(3:end))*11) '_' sz]; end
 
 if test
-    viddir = fullfile(datapath, 'ictal_cinema_library', pt, 'test');
+    viddir = fullfile(datapath, 'opscea', 'ictal_cinema_library', pt, 'test');
 else
-    viddir = fullfile(datapath, 'ictal_cinema_library',pt);
+    viddir = fullfile(datapath, 'opscea', 'ictal_cinema_library', pt);
 end
-vidfn = [pt '_' sz '_shu_2'];
+
+% TODO(steph): delete this 
+% viddir = fullfile(viddir, [pt '_' sz]);
+vidfn = [pt '_' sz];
 vidfilename = fullfile(viddir, vidfn);
 mkdir(viddir);
-v=VideoWriter(vidfilename,'Motion JPEG AVI');
+v=VideoWriter(vidfilename,'MPEG-4');
 v.FrameRate = 15;
 open(v);
 writeVideo(v,F);

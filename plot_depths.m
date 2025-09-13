@@ -7,11 +7,11 @@ for d=1:height(depths)
     tile(depth);
     eN=depth.depths{1};
     [eNID,~,~]=intersect(find(nns),eN); %Get the specific channels for this depth, ignoring bad channels
-    if isempty(eNID)
+    if isempty(eNID) || isscalar(eNID)
         axis off;
-        if isfirstframe
-            tiles.depth(d, :) = [];
-        end
+        % if isfirstframe
+        %     tiles.depth(d, :) = [];
+        % end
     elseif ~isempty(eNID)
         I.em=em;
         I.w8s=w8s;

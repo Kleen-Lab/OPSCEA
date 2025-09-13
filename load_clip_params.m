@@ -23,6 +23,7 @@ else
     ptsz = replace(splitpath{end}, "_params.mat", "");
     szpath = replace(clipparams, [ptsz '_params.mat'], "");
 
+
 end
 
 load(fullfile(szpath, ptsz), 'sfx');
@@ -46,7 +47,12 @@ else
     S.iceeg_scale = 97;
 end
 
-S.fps = exist('fps', 'var') && fps || 5;
+if exist('fps', 'var')
+    S.fps = fps;
+else
+    S.fps = 5;
+end
+
 if test
     S.fps = 0.25;
 end

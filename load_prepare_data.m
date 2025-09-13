@@ -85,8 +85,8 @@ loaf.Lcrtx = Lcrtx;
 clear Lcortex
 
 for i=1:height(tiles.surface)
-    hippentry(i)=~isempty(strfind(tiles.surface.surfaces,'hipp'));
-    amygentry(i)=~isempty(strfind(tiles.surface.surfaces,'amyg')); 
+    hippentry(i)=~isempty(strfind(tiles.surface.surfaces{i},'hipp'));
+    amygentry(i)=~isempty(strfind(tiles.surface.surfaces{i},'amyg')); 
 end
 errmsg='ATTN: MISSING A MESH, need to add this mesh file to directory (or remove/omit from frame): ';
 if any(hippentry)
