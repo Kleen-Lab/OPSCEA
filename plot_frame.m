@@ -1,4 +1,4 @@
-function plot_frame(i, isfirstframe, LL, d, sfx, nch, nns, scl, ts, ytl, chanorder, showlabels, pt, em, depthch, axislim, datapath)
+function plot_frame(i, isfirstframe, LL, d, sfx, nch, nns, scl, ts, ytl, chanorder, showlabels, pt, em, depthch, axislim, datapath, maxbased)
 global tiles;
 global S;
 global loaf;
@@ -18,6 +18,6 @@ end
 % plot the different sections
 plot_ecog(tiles.ecog, d, sfx, nch, nns, i, scl, ts, ytl, chanorder, showlabels, S);
 plot_cb(tiles.cb, S);
-plot_surfaces(tiles.surface, pt, em, w8s, nns, depthch, nch, axislim, loaf, S);
-plot_depths(tiles, nns, isfirstframe, em, w8s, pt, datapath, showlabels, axislim, S);
+plot_surfaces(tiles.surface, pt, em, w8s, nns, depthch, nch, axislim, loaf, S, maxbased);
+plot_depths(tiles, nns, isfirstframe, em, w8s, pt, datapath, showlabels, axislim, S, maxbased);
 end

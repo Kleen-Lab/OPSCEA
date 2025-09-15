@@ -24,7 +24,8 @@ elseif any([S.VIDperiod(2) S.BLperiod(2)]>ntp)
 end
 
 %% locate and load electrode file for labels and XYZ coordinates
-load(fullfile(imagingpath, pt, 'elecs', 'clinical_elecs_all.mat'), 'anatomy', 'elecmatrix', 'eleclabels');
+load(fullfile(imagingpath, pt, 'elecs', [S.etype '_elecs_all.mat']), 'anatomy', 'elecmatrix', 'eleclabels');
+
 if ~exist('anatomy','var')
     anatomy=cell(size(elecmatrix,1),4);
 end

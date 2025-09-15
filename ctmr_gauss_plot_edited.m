@@ -1,4 +1,4 @@
-function [c_h] = ctmr_gauss_plot_edited(cortex,elecmatrix,weights,cax,addl,CM,gsp)
+function [c_h] = ctmr_gauss_plot_edited(cortex,elecmatrix,weights,cax,addl,CM,gsp,maxbased)
 % function [c_h]=ctmr_gauss_plot(cortex,elecmatrix,weights)
 %
 % projects electrode locationsm (elecmatrix) onto their cortical spots in 
@@ -49,14 +49,30 @@ end
 
 if ~exist('gsp','var') || isempty(gsp); gsp=10; end %default 10
 
-c=zeros(length(cortex(:,1)),1);
-for i=1:length(elecmatrix(:,1))
-    b_z=abs(brain(:,3)-elecmatrix(i,3));
-    b_y=abs(brain(:,2)-elecmatrix(i,2));
-    b_x=abs(brain(:,1)-elecmatrix(i,1));
-    d=weights(i)*exp((-(b_x.^2+b_z.^2+b_y.^2))/gsp); %gaussian
-    c=c+d';
+if maxbased
+    % MAX-BASED VERSION
+    c=zeros(size(brain(:,1),1),size(elecmatrix,1));
+    for i=1:length(elecmatrix(:,1))
+        b_z=abs(brain(:,3)-elecmatrix(i,3));
+        b_y=abs(brain(:,2)-elecmatrix(i,2));
+        b_x=abs(brain(:,1)-elecmatrix(i,1));
+        d=weights(i)*exp((-(b_x.^2+b_z.^2+b_y.^2))/gsp); %gaussian
+        c(:,i)=d';
+    end
+    c = max(c,[],2)'; % only issue is this doesnt allow negative heatmap values
+else
+    % ORIGINAL VERSION
+    c=zeros(length(cortex(:,1)),1);
+    for i=1:length(elecmatrix(:,1))
+        b_z=abs(brain(:,3)-elecmatrix(i,3));
+        b_y=abs(brain(:,2)-elecmatrix(i,2));
+        b_x=abs(brain(:,1)-elecmatrix(i,1));
+        d=weights(i)*exp((-(b_x.^2+b_z.^2+b_y.^2))/gsp); %gaussian
+        c=c+d';
+    end
 end
+
+
 
 c_h=tripatch(cortex, 'nofigure', c');
 if ~addl; shading interp; end
@@ -67,7 +83,7 @@ if exist('cax','var') && ~isempty(cax); set(gca,'CLim',[cax(1) cax(2)]);
 else set(gca,'CLim',[-max(abs(d)) max(abs(d))]); 
 end
 colormap(gca,cm)
-lighting phong; 
+lighting phong; % makes smooth brain
 material dull;
 axis off
 litebrain('a',.1) %just so it is visible; will replace lighting soon

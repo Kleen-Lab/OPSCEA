@@ -1,4 +1,4 @@
-function OPSCEA(pt,sz,showlabels,jumpto, test)
+function OPSCEA(pt,sz,showlabels,jumpto, test, maxbased)
 % EXAMPLE USAGE: OPSCEA('UCSF1','01',1,0)
 
 % pt is a string such as 'UCSF4' or 'JaneDoe', acts as a prefix for files below
@@ -37,6 +37,7 @@ arguments
     showlabels logical = true;
     jumpto double = 0;
     test logical = false;
+    maxbased logical = true;
 end
 
 datapath = getenv('KLEEN_DATA');
@@ -73,6 +74,7 @@ load_clip_params(clipparams, test);
 [ytl, nch, chanorder] = prepare_plotting(eleclabels, nns, d, showlabels);
 
 figure('color','w','Position',[1 5 1280 700]);
+% figure('color', 'w', 'Position', [1 5 1511 861]);
 frametimpoints=jumpto:S.fram:ntp-sfx*S.iceegwin; % timepoint index of each frame to be rendered
 
 clear F;
@@ -87,10 +89,10 @@ for i=frametimpoints
     isfirstframe = i==jumpto;
 
     % Save each frame into the ongoing sequential structure F
-    plot_frame(i, isfirstframe, LL, d, sfx, nch, nns, scl, ts, ytl, chanorder, showlabels, pt, em, depthch, axislim, datapath);
+    plot_frame(i, isfirstframe, LL, d, sfx, nch, nns, scl, ts, ytl, chanorder, showlabels, pt, em, depthch, axislim, datapath, maxbased);
     
     if isfirstframe
-        F = plot_rotation_animation(f, tiles, sliceinfo);
+        F(f) = plot_rotation_animation(f, tiles, sliceinfo);
     end
 
     F(f) = getframe(gcf); 

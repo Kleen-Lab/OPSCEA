@@ -13,7 +13,7 @@ if exist('app', 'var')
     ptpath = fullfile(opsceapath, pt); % patient's folder
     szpath = fullfile(ptpath, ptsz); % specific seizure's folder
 else
-    load(clipparams, 'vidstart', 'vidstop', 'llw', 'iceeg_scale', 'fps', 'cax', 'gsp', 'cm', 'iceegwin', 'marg', 'slicebright');
+    load(clipparams, 'vidstart', 'vidstop', 'llw', 'iceeg_scale', 'fps', 'cax', 'gsp', 'cm', 'iceegwin', 'marg', 'slicebright', 'etype');
     load(clipparams, 'blstart', 'blstop') 
 
     % szpath = replace(clipparams, "/clip_params.mat", "");
@@ -34,7 +34,7 @@ S.BLperiod=[blstart blstop];
 % transform, scaling, and display options
 % need defaults for if clip_params.mat is not fully configured yet (e.g.
 % outputs from EEGHILITE only include vidstart, vidstop, blstart, blstop)
-S.llw = exist('llw', 'var') && llw || 0.25;
+S.llw = llw;
 
 % percentile (number >50 and <100), used here similar to gain ICEEG waveform display, usually 95
 % Note(steph): for some reason, this logic isn't working anymore so need to
@@ -42,9 +42,9 @@ S.llw = exist('llw', 'var') && llw || 0.25;
 % S.iceeg_scale = exist('iceeg_scale', 'var') && iceeg_scale || 97
 
 if exist('iceeg_scale', 'var')
-    S.iceeg_scale = 95;
+    S.iceeg_scale = iceeg_scale;
 else
-    S.iceeg_scale = 97;
+    S.iceeg_scale = 97.5;
 end
 
 if exist('fps', 'var')
@@ -105,6 +105,14 @@ if exist('slicebright', 'var')
     S.slicebright = slicebright;
 else
     S.slicebright = 25;
+end
+
+if isnan(S.slicebright); S.slicebright=0; end %brighten up slices (usually 0 to 50)
+
+if exist('etype', 'var')
+    S.etype = etype;
+else
+    S.etype = 'clinical';
 end
 
 if isnan(S.slicebright); S.slicebright=0; end %brighten up slices (usually 0 to 50)

@@ -1,4 +1,4 @@
-function plot_surfaces(surfaces, pt, em, w8s, nns, depthch, nch, axislim, meshes, S)
+function plot_surfaces(surfaces, pt, em, w8s, nns, depthch, nch, axislim, meshes, S, maxbased)
 for p=1:height(surfaces)
     surface = surfaces(p, :);
     tile(surface);
@@ -28,7 +28,7 @@ for p=1:height(surfaces)
         end
         % plot the individual heatmapped surface
         if exist('srfplot','var')
-            hh=ctmr_gauss_plot_edited(srfplot,em(nns,:),w8s(nns),S.cax,0,S.cm,S.gsp);
+            hh=ctmr_gauss_plot_edited(srfplot,em(nns,:),w8s(nns),S.cax,0,S.cm,S.gsp, maxbased);
             alpha(hh,surface.opacity{1}(s)); % Adjust opacity specified for that row
         else
             disp(['ALERT: One of the entries in row ' num2str(p + 2) ' is not a valid entry, accepts:']); 
@@ -36,8 +36,8 @@ for p=1:height(surfaces)
         end
     end
     if isempty(intersect(srf{s},{'rcortex','lcortex'}))||strcmpi(srf,'wholebrain') %for glass brain (hipp and/or amyg only) and wholebrain plots
-        glass1=ctmr_gauss_plot_edited(meshes.Rcrtx,em(nns,:),w8s(nns),S.cax,0,S.cm,S.gsp); alpha(glass1,.1);
-        glass2=ctmr_gauss_plot_edited(meshes.Lcrtx,em(nns,:),w8s(nns),S.cax,0,S.cm,S.gsp); alpha(glass2,.1);
+        glass1=ctmr_gauss_plot_edited(meshes.Rcrtx,em(nns,:),w8s(nns),S.cax,0,S.cm,S.gsp, maxbased); alpha(glass1,.1);
+        glass2=ctmr_gauss_plot_edited(meshes.Lcrtx,em(nns,:),w8s(nns),S.cax,0,S.cm,S.gsp, maxbased); alpha(glass2,.1);
         plot3(em(depthch,1),em(depthch,2),em(depthch,3),'k.','markersize',10-5*(1/nch*10))
         if ~surface.show{1}
             plot3(em(nns,1),em(nns,2),em(nns,3),'k.','markersize',10-5*(1/nch*10));

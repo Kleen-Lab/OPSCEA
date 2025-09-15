@@ -1,4 +1,4 @@
-function OPSCEAsurfslice(subject,orientation,elecs,weights,datapath,fs_dir,cax,CM,gsp,j,offset,isfirstframe)
+function OPSCEAsurfslice(subject,orientation,elecs,weights,datapath,fs_dir,cax,CM,gsp,j,offset,isfirstframe, maxbased)
     
     %     (This is a subfunction created as a part of) Omni-planar and surface
     %     casting of epileptiform activity (OPSCEA) (UC Case Number SF2020-281)
@@ -111,8 +111,8 @@ function OPSCEAsurfslice(subject,orientation,elecs,weights,datapath,fs_dir,cax,C
     end
     
     hold on;
-    lbrn=ctmr_gauss_plot_edited(sliceinfo(j).lsplit,I.em(I.nns,:),I.w8s(I.nns),S.cax,0,S.cm,S.gsp); 
-    rbrn=ctmr_gauss_plot_edited(sliceinfo(j).rsplit,I.em(I.nns,:),I.w8s(I.nns),S.cax,0,S.cm,S.gsp); 
+    lbrn=ctmr_gauss_plot_edited(sliceinfo(j).lsplit,I.em(I.nns,:),I.w8s(I.nns),S.cax,0,S.cm,S.gsp, maxbased); 
+    rbrn=ctmr_gauss_plot_edited(sliceinfo(j).rsplit,I.em(I.nns,:),I.w8s(I.nns),S.cax,0,S.cm,S.gsp, maxbased); 
     
     if isfirstframe
         s=slice(vrf,sliceinfo(j).xslice,sliceinfo(j).yslice,sliceinfo(j).zslice); 

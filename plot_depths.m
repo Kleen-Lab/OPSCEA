@@ -1,4 +1,4 @@
-function plot_depths(tiles, nns, isfirstframe, em, w8s, pt, datapath, showlabels, axislim, S)
+function plot_depths(tiles, nns, isfirstframe, em, w8s, pt, datapath, showlabels, axislim, S, maxbased)
 global I;
 global sliceinfo;
 depths = tiles.depth;
@@ -18,7 +18,7 @@ for d=1:height(depths)
         I.nns=nns;
         offset = 2 + height(tiles.surface);
         sliceinfo(d+offset).depthlabels=depth.labels;
-        OPSCEAsurfslice(pt,S.sliceplane,em(eNID,:),w8s(eNID),datapath,[],S.cax,S.cm,S.gsp,d+offset,offset,isfirstframe)
+        OPSCEAsurfslice(pt,S.sliceplane,em(eNID,:),w8s(eNID),datapath,[],S.cax,S.cm,S.gsp,d+offset,offset,isfirstframe, maxbased)
         plot3(em(eNID,1),em(eNID,2)+((S.sliceplane=='c')),em(eNID,3),'k-'); % depth probe (line between electrodes)
         plot3(em(eNID,1),em(eNID,2)+((S.sliceplane=='c')),em(eNID,3),'k.','markersize',10); % depth electrodes (dots)
         cameratoolbar('setmode','')
