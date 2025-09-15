@@ -4,6 +4,7 @@ for p=1:height(surfaces)
     tile(surface);
     hold off;
     srf=regexp(surface.surfaces,',','split'); % list the specific surfaces wanted for this subplot
+    srf=srf{1}; surface.opacity=surface.opacity{1};
     % srfalpha=regexp(surface.opacity,',','split'); % list their corresponding opacities (values from 0 to 1; 0=invisible, 1=opaque)
     if length(srf)~=length(surface.opacity)
         msgbox('Number of surface to plot does not match number of alpha designations, check excel sheet');
@@ -29,7 +30,7 @@ for p=1:height(surfaces)
         % plot the individual heatmapped surface
         if exist('srfplot','var')
             hh=ctmr_gauss_plot_edited(srfplot,em(nns,:),w8s(nns),S.cax,0,S.cm,S.gsp, maxbased);
-            alpha(hh,surface.opacity{1}(s)); % Adjust opacity specified for that row
+            alpha(hh,surface.opacity(s)); % Adjust opacity specified for that row
         else
             disp(['ALERT: One of the entries in row ' num2str(p + 2) ' is not a valid entry, accepts:']); 
             disp(acceptedterms);
