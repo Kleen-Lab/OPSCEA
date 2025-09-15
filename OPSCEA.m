@@ -92,8 +92,7 @@ for i=frametimpoints
     plot_frame(i, isfirstframe, LL, d, sfx, nch, nns, scl, ts, ytl, chanorder, showlabels, pt, em, depthch, axislim, datapath, maxbased);
     
     if isfirstframe
-        F(f) = plot_rotation_animation(f, tiles, sliceinfo);
-        f = f+1; 
+        [F,f] = plot_rotation_animation(f, tiles, sliceinfo);
     end
 
     F(f) = getframe(gcf); 
@@ -112,10 +111,11 @@ else
     viddir = fullfile(datapath, 'opscea', 'ictal_cinema_library', pt);
 end
 
-
+viddir='~/Desktop/test_opscea';
 % TODO(steph): delete this 
 % viddir = fullfile(viddir, [pt '_' sz]);
 vidfn = [pt '_' sz];
+    vidfn=[vidfn jkdatetime]
 vidfilename = fullfile(viddir, vidfn);
 mkdir(viddir);
 v=VideoWriter(vidfilename,'MPEG-4');
