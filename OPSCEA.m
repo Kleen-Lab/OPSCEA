@@ -93,6 +93,7 @@ for i=frametimpoints
     
     if isfirstframe
         F(f) = plot_rotation_animation(f, tiles, sliceinfo);
+        f = f+1; 
     end
 
     F(f) = getframe(gcf); 
@@ -110,6 +111,7 @@ if test
 else
     viddir = fullfile(datapath, 'opscea', 'ictal_cinema_library', pt);
 end
+
 
 % TODO(steph): delete this 
 % viddir = fullfile(viddir, [pt '_' sz]);
