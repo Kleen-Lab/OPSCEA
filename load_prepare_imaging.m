@@ -3,8 +3,13 @@ global S;
 global tiles;
 global loaf;
 
-if     strcmpi(S.etype,'clinical'); clin1TDT2=1;
-elseif strcmpi(S.etype,'TDT');      clin1TDT2=2;
+if isfield(S, 'etype')
+    if     strcmpi(S.etype,'clinical'); clin1TDT2=1;
+    elseif strcmpi(S.etype,'TDT');      clin1TDT2=2;
+    end
+else
+    % TODO(steph): should this be the default? 
+    S.etype = 'clinical';
 end
 
 %% locate and load electrode file for labels and XYZ coordinates
