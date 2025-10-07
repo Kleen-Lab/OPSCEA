@@ -4,9 +4,10 @@ for p=1:height(surfaces)
     tile(surface);
     hold off;
     srf=regexp(surface.surfaces,',','split'); % list the specific surfaces wanted for this subplot
-    srf=srf{1}; surface.opacity=surface.opacity{1};
+    srf=srf{1}; 
+    opacity=surface.opacity{1};
     % srfalpha=regexp(surface.opacity,',','split'); % list their corresponding opacities (values from 0 to 1; 0=invisible, 1=opaque)
-    if length(srf)~=length(surface.opacity)
+    if length(srf)~=length(opacity)
         msgbox('Number of surface to plot does not match number of alpha designations, check excel sheet');
         return;
     end
@@ -30,7 +31,7 @@ for p=1:height(surfaces)
         % plot the individual heatmapped surface
         if exist('srfplot','var')
             hh=ctmr_gauss_plot_edited(srfplot,em(nns,:),w8s(nns),S.cax,0,S.cm,S.gsp, maxbased);
-            alpha(hh,surface.opacity(s)); % Adjust opacity specified for that row
+            alpha(hh,opacity(s)); % Adjust opacity specified for that row
         else
             disp(['ALERT: One of the entries in row ' num2str(p + 2) ' is not a valid entry, accepts:']); 
             disp(acceptedterms);
@@ -50,8 +51,8 @@ for p=1:height(surfaces)
     litebrain(char(surface.view),.9);
     wb=strcmpi(srf,'wholebrain'); 
     if any(wb)
-        alpha(glass1,surface.opacity{1}(wb));
-        alpha(glass2,surface.opacity{1}(wb)); 
+        alpha(glass1,opacity{1}(wb));
+        alpha(glass2,opacity{1}(wb)); 
     end
     if strcmpi(surface.view,'i')
         view(90+meshes.isL*180,270); 
