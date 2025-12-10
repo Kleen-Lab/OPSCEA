@@ -51,8 +51,8 @@ for p=1:height(surfaces)
     litebrain(char(surface.view),.9);
     wb=strcmpi(srf,'wholebrain'); 
     if any(wb)
-        alpha(glass1,opacity{1}(wb));
-        alpha(glass2,opacity{1}(wb)); 
+        alpha(glass1,opacity(wb));
+        alpha(glass2,opacity(wb)); 
     end
     if strcmpi(surface.view,'i')
         view(90+meshes.isL*180,270); 
