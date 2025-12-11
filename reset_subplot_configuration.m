@@ -4,7 +4,7 @@ function reset_subplot_configuration(app)
 app.PatientIDEditField.Value = "";
 
 % Reset plot layout
-app.ConfigurePlotLayoutEditField.Value = "6,100";
+app.ConfigurePlotLayoutEditField.Value = "3,100";
 
 % Reset ECoG & colorbar configuration
 elementNames = {"ECoG"; "Colorbar"};
