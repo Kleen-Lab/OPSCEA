@@ -19,7 +19,8 @@ function finalClipID = save_clip_params(app, savedir)
     end
     patientFolder = fullfile(baseFolder, patientID);
     if exist(patientFolder, "dir") ~= 7
-        msgbox(sprintf("Patient %s not found. Please specify another patient or create a new subplot configuration for this patient.", patientID));
+        %msgbox(sprintf("Patient %s not found. Please specify another patient or create a new subplot configuration for this patient.", patientID));
+        mkdir(patientFolder)
         finalClipID = '';
         return;
     end
