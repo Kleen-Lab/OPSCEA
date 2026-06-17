@@ -13,8 +13,7 @@ if exist('app', 'var')
     ptpath = fullfile(opsceapath, pt); % patient's folder
     szpath = fullfile(ptpath, ptsz); % specific seizure's folder
 else
-    load(clipparams, 'vidstart', 'vidstop', 'llw', 'iceeg_scale', 'fps', 'cax', 'gsp', 'cm', 'iceegwin', 'marg', 'slicebright', 'etype');
-    load(clipparams, 'blstart', 'blstop') 
+    load(clipparams) 
 
     % szpath = replace(clipparams, "/clip_params.mat", "");
     % splitpath = split(szpath, '/');

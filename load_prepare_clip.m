@@ -16,6 +16,13 @@ if size(d,1)>size(d,2); d=d'; end % orient to channels by samples
 disp(['Total length of ICEEG data: ' num2str(round(ntp/sfx)) ' sec'])
 disp(['Length of data to play for video: ' num2str(diff(S.VIDperiod)) ' sec'])
 
+if ~islogical(badch) %convert numeric bad channel index to logical index matching number of channels in data
+    badch_idx=false(size(d,1),1); 
+    badch_idx(badch)=true;
+    badch=badch_idx; 
+    clear badch_idx
+end
+
 % error checks for selected time periods
 if any([S.VIDperiod(1) S.BLperiod(1)]<0)
     error('VIDperiod is out of bounds of file (time < 0). Check both VIDstart and BLstart times and make sure the "marg" value (subtracted from VIDstart and BLstart), cannot be < 0');
