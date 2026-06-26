@@ -43,7 +43,7 @@ for d=1:height(depths)
             end
         end
         axis(axislim);
-        zoom(depth.zoom); % apply the specified zoom for that this view (usually similar for all depths but can depend on angle of slice, position of electrodes, etc)
+        zoom(gca,depth.zoom); % apply the specified zoom for that this view (usually similar for all depths but can depend on angle of slice, position of electrodes, etc)
 
         if showlabels 
             ttl=depth.labels; 
