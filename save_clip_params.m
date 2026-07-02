@@ -1,6 +1,8 @@
-function finalClipID = save_clip_params(app, savedir)
+function finalClipID = save_clip_params(app, savedir,definitelySave)
     patientID = app.PatientIDEditField.Value;
     
+    if ~exist('definitelySave','var'); definitelySave=1; end
+
     % Check that patientID is not empty
     if strrep(patientID, " ", "") == ""
         msgbox(sprintf("Please specify a patient ID"));
@@ -56,14 +58,16 @@ function finalClipID = save_clip_params(app, savedir)
 
     elseif ismember(clipID, idsOnly)
         % Check that user intends to overwrite/update existing data
-        message = sprintf("Video params with clip ID %s exists for patient %s. Do you want to overwrite the existing data?", clipID, patientID);
+        message = sprintf("Video params with clip ID %s exists for patient %s. Do you want to overwrite the existing data with the currently displayed parameters? If not, will run on previously-saved parameters.", clipID, patientID);
         btn1 = "Overwrite";
         btn2 = "Cancel";
         choice = questdlg(message, "Warning", btn1, btn2, btn2);
         if choice == "Cancel"
             msgbox("Configuration not saved.");
-            finalClipID = '';
-            return;
+            finalClipID =clipID;
+            definitelySave=0;
+            %finalClipID = '';
+            %return;
         else
             finalClipID = clipID;
         end
@@ -95,9 +99,11 @@ function finalClipID = save_clip_params(app, savedir)
         mkdir(folderPath)
     end
     
-    filename = sprintf("%s/%s_params.mat", folderPath, patientClipFolder);
-    save(filename, "vidstart", "vidstop", "blstart", "blstop", "llw", "iceeg_scale",...
-        "fps", "cax", "gsp", "cm", "iceegwin", "marg", "slicebright", "etype",...
+    if definitelySave
+        filename = sprintf("%s/%s_params.mat", folderPath, patientClipFolder);
+        save(filename, "vidstart", "vidstop", "blstart", "blstop", "llw", "iceeg_scale",...
+            "fps", "cax", "gsp", "cm", "iceegwin", "marg", "slicebright", "etype",...
         "patient", "clipid");
+    end
 
 end
