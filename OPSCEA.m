@@ -57,6 +57,8 @@ global S; % holds general parameters
 % for speed, these are filled during first frame of surfslice then re-used
 global loaf;
 global sliceinfo;
+global surfinfo;
+global ecoginfo;
 global I;
 global tiles;
 
@@ -75,10 +77,12 @@ load_clip_params(clipparams, test);
 
 figure('color','w','Position',[1 5 1280 700]);
 % figure('color', 'w', 'Position', [1 5 1511 861]);
+tiledlayout(tiles.layout.rows, tiles.layout.cols); % create layout once; tiles persist across frames
 frametimpoints=jumpto:S.fram:ntp-sfx*S.iceegwin; % timepoint index of each frame to be rendered
 
 clear F;
 f = 1;
+capture_frame(gcf, true); % reset frame-size session before capturing
 for i=frametimpoints
     if i==jumpto+2*S.fram
         timerem_sec=toc*length(frametimpoints);
@@ -95,7 +99,7 @@ for i=frametimpoints
         [F,f] = plot_rotation_animation(f, tiles, sliceinfo);
     end
 
-    F(f) = getframe(gcf); 
+    F(f) = capture_frame(gcf);
     f = f+1; 
     fprintf('Saved frame - '); 
     toc
@@ -111,11 +115,11 @@ else
     viddir = fullfile(datapath, 'opscea', 'ictal_cinema_library', pt);
 end
 
-viddir='~/Desktop/test_opscea';
+% viddir='~/Desktop/test_opscea';
 % TODO(steph): delete this 
 % viddir = fullfile(viddir, [pt '_' sz]);
 vidfn = [pt '_' sz];
-    vidfn=[vidfn jkdatetime]
+    vidfn=[vidfn '_' jkdatetime]
 vidfilename = fullfile(viddir, vidfn);
 mkdir(viddir);
 v=VideoWriter(vidfilename,'MPEG-4');

@@ -1,4 +1,4 @@
-function [c_h] = ctmr_gauss_plot_edited(cortex,elecmatrix,weights,cax,addl,CM,gsp,maxbased)
+function [c_h, K] = ctmr_gauss_plot_edited(cortex,elecmatrix,weights,cax,addl,CM,gsp,maxbased,h_reuse,K_cache)
 % function [c_h]=ctmr_gauss_plot(cortex,elecmatrix,weights)
 %
 % projects electrode locationsm (elecmatrix) onto their cortical spots in 
@@ -49,38 +49,51 @@ end
 
 if ~exist('gsp','var') || isempty(gsp); gsp=10; end %default 10
 
-if maxbased
-    % MAX-BASED VERSION
-    c=zeros(size(brain(:,1),1),size(elecmatrix,1));
-    for i=1:length(elecmatrix(:,1))
-        b_z=abs(brain(:,3)-elecmatrix(i,3));
-        b_y=abs(brain(:,2)-elecmatrix(i,2));
-        b_x=abs(brain(:,1)-elecmatrix(i,1));
-        d=weights(i)*exp((-(b_x.^2+b_z.^2+b_y.^2))/gsp); %gaussian
-        c(:,i)=d';
-    end
-    c = max(c,[],2)'; % only issue is this doesnt allow negative heatmap values
+% Electrode positions are fixed for an entire OPSCEA run - only the
+% weights change frame to frame. K (the geometry-only distance term)
+% is therefore computed once and reused across all frames
+% (passed back in as K_cache); only the weight-combination step
+% below runs every frame.
+if nargin >= 10 && ~isempty(K_cache)
+    K = K_cache;
+elseif exist('gauss_kernel_matrix_mex','file') == 3
+    K = gauss_kernel_matrix_mex(brain, elecmatrix, gsp);
 else
-    % ORIGINAL VERSION
-    c=zeros(length(cortex(:,1)),1);
-    for i=1:length(elecmatrix(:,1))
+    % MATLAB fallback (only hit once per patch, since K gets cached after)
+    K = zeros(size(brain,1), size(elecmatrix,1));
+    for i=1:size(elecmatrix,1)
         b_z=abs(brain(:,3)-elecmatrix(i,3));
         b_y=abs(brain(:,2)-elecmatrix(i,2));
         b_x=abs(brain(:,1)-elecmatrix(i,1));
-        d=weights(i)*exp((-(b_x.^2+b_z.^2+b_y.^2))/gsp); %gaussian
-        c=c+d';
+        K(:,i)=exp((-(b_x.^2+b_z.^2+b_y.^2))/gsp);
     end
 end
 
+if maxbased
+    c = max(K .* weights(:)', [], 2);
+else
+    c = K * weights(:);
+end
 
+c = c(:); % normalize to column regardless of which branch above produced c
 
-c_h=tripatch(cortex, 'nofigure', c');
+% On subsequent frames reuse the existing patch handle — just update colors,
+% skipping tripatch/shading/lighting/axis setup which are frame-invariant.
+if nargin >= 9 && ~isempty(h_reuse) && isvalid(h_reuse)
+    set(h_reuse, 'FaceVertexCData', c);
+    if exist('cax','var') && ~isempty(cax); set(gca,'CLim',[cax(1) cax(2)]); end
+    colormap(gca,cm)
+    c_h = h_reuse;
+    return
+end
+
+c_h=tripatch(cortex, 'nofigure', c);
 if ~addl; shading interp; end
 a=get(gca);
 
 d=a.CLim;
-if exist('cax','var') && ~isempty(cax); set(gca,'CLim',[cax(1) cax(2)]); 
-else set(gca,'CLim',[-max(abs(d)) max(abs(d))]); 
+if exist('cax','var') && ~isempty(cax); set(gca,'CLim',[cax(1) cax(2)]);
+else set(gca,'CLim',[-max(abs(d)) max(abs(d))]);
 end
 colormap(gca,cm)
 lighting phong; % makes smooth brain

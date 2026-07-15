@@ -19,7 +19,7 @@ if height(tiles.depth) > 0
             end
         end
         pause(.25);
-        F(f)=getframe(gcf);
+        F(f)=capture_frame(gcf); %capture_frame prevents a writeVideo crash from inconsistent frame sizes
         f=f+1;
     end
 end

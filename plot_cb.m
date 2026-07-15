@@ -1,4 +1,6 @@
-function plot_cb(cbar, S)
+function plot_cb(cbar, S, isfirstframe)
+% Colorbar is entirely static (doesn't depend on data) - build it once.
+if ~isfirstframe; return; end
 tile(cbar);
 hold off;
 plot(1,1);

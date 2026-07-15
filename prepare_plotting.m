@@ -1,10 +1,14 @@
 function [ytl, nch, chanorder] = prepare_plotting(eleclabels, nns, d, showlabels)
 global tiles;
 global sliceinfo;
+global surfinfo;
+global ecoginfo;
 global loaf;
 
 nplots = 2 + height(tiles.depth) + height(tiles.surface);
-sliceinfo=[]; 
+sliceinfo=[];
+surfinfo=[]; % clear cached surface patch handles from any previous run
+ecoginfo=[]; % clear cached ecog trace/cursor handles from any previous run
 loaf.vrf=[]; 
 loaf.apasrf=[]; 
 loaf.normloaf=[];

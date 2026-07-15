@@ -1,4 +1,4 @@
-function [cim]=toaster(XX,YY,ZZ,im,em,w8,cax,cm,gsp)
+function [cim,K]=toaster(XX,YY,ZZ,im,em,w8,cax,cm,gsp,K_cache)
 
 % recolors a 2D grayscale slice with a heatmap according to electrode
 % locations in 3D space (similar proximity principles as ctmr_gauss_plot)
@@ -33,11 +33,23 @@ z=(ZZ(1:end-1,:)+ZZ(2:end,:))/2; z=(z(:,1:end-1)+z(:,2:end))/2;
 %vectorize
 im=reshape(im,1,256^2); x=reshape(x,1,256^2); y=reshape(y,1,256^2); z=reshape(z,1,256^2); 
 
-c=zeros(length(im),1);
-for i=1:length(em(:,1))
-    bx=abs(x-em(i,1));    by=abs(y-em(i,2));    bz=abs(z-em(i,3)); 
-    c=c+(w8(i)*exp((-(bx.^2+by.^2+bz.^2))/gsp))'; %gaussian fall off
+% Pixel grid (x,y,z) is fixed across all frames - only w8
+% changes. K (the geometry-only distance term) is
+% therefore computed once and reused across all frames
+% (passed back in as K_cache); only the weight-combination step
+% below runs every frame.
+if nargin >= 10 && ~isempty(K_cache)
+    K = K_cache;
+elseif exist('gauss_kernel_matrix_mex','file') == 3
+    K = gauss_kernel_matrix_mex([x' y' z'], em, gsp);
+else
+    K=zeros(length(im),size(em,1));
+    for i=1:size(em,1)
+        bx=abs(x-em(i,1));    by=abs(y-em(i,2));    bz=abs(z-em(i,3));
+        K(:,i)=exp((-(bx.^2+by.^2+bz.^2))/gsp)'; %gaussian fall off
+    end
 end
+c = K * w8(:);
 
 hcm=size(cm,1)/2; %use the same colormap used for surfaces
 c=c-cax(1); c=c/diff(cax); %scales weights to the range of cax input

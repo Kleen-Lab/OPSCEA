@@ -1,10 +1,14 @@
-function plot_surfaces(surfaces, pt, em, w8s, nns, depthch, nch, axislim, meshes, S, maxbased)
+function plot_surfaces(surfaces, pt, em, w8s, nns, depthch, nch, axislim, meshes, S, maxbased, isfirstframe)
+% Global handle cache, parallel to plot_depths/OPSCEAsurfslice.
+% After first frame, only push updated color data into the existing
+% patch handles instead of rebuilding geometry from scratch every frame.
+global surfinfo
 for p=1:height(surfaces)
     surface = surfaces(p, :);
     tile(surface);
-    hold off;
+    if isfirstframe; hold off; else; hold on; end
     srf=regexp(surface.surfaces,',','split'); % list the specific surfaces wanted for this subplot
-    srf=srf{1}; 
+    srf=srf{1};
     opacity=surface.opacity{1};
     % srfalpha=regexp(surface.opacity,',','split'); % list their corresponding opacities (values from 0 to 1; 0=invisible, 1=opaque)
     if length(srf)~=length(opacity)
@@ -30,44 +34,63 @@ for p=1:height(surfaces)
         end
         % plot the individual heatmapped surface
         if exist('srfplot','var')
-            hh=ctmr_gauss_plot_edited(srfplot,em(nns,:),w8s(nns),S.cax,0,S.cm,S.gsp, maxbased);
+            if isfirstframe
+                [hh,hh_K]=ctmr_gauss_plot_edited(srfplot,em(nns,:),w8s(nns),S.cax,0,S.cm,S.gsp, maxbased);
+                surfinfo(p).hh{s}=hh;
+                surfinfo(p).hh_K{s}=hh_K;
+            else
+                hh=ctmr_gauss_plot_edited(srfplot,em(nns,:),w8s(nns),S.cax,0,S.cm,S.gsp, maxbased, surfinfo(p).hh{s}, surfinfo(p).hh_K{s});
+            end
             alpha(hh,opacity(s)); % Adjust opacity specified for that row
         else
-            disp(['ALERT: One of the entries in row ' num2str(p + 2) ' is not a valid entry, accepts:']); 
+            disp(['ALERT: One of the entries in row ' num2str(p + 2) ' is not a valid entry, accepts:']);
             disp(acceptedterms);
         end
     end
     if isempty(intersect(srf{s},{'rcortex','lcortex'}))||strcmpi(srf,'wholebrain') %for glass brain (hipp and/or amyg only) and wholebrain plots
-        glass1=ctmr_gauss_plot_edited(meshes.Rcrtx,em(nns,:),w8s(nns),S.cax,0,S.cm,S.gsp, maxbased); alpha(glass1,.1);
-        glass2=ctmr_gauss_plot_edited(meshes.Lcrtx,em(nns,:),w8s(nns),S.cax,0,S.cm,S.gsp, maxbased); alpha(glass2,.1);
-        plot3(em(depthch,1),em(depthch,2),em(depthch,3),'k.','markersize',10-5*(1/nch*10))
-        if ~surface.show{1}
-            plot3(em(nns,1),em(nns,2),em(nns,3),'k.','markersize',10-5*(1/nch*10));
+        if isfirstframe
+            [glass1,glass1_K]=ctmr_gauss_plot_edited(meshes.Rcrtx,em(nns,:),w8s(nns),S.cax,0,S.cm,S.gsp, maxbased); alpha(glass1,.1);
+            [glass2,glass2_K]=ctmr_gauss_plot_edited(meshes.Lcrtx,em(nns,:),w8s(nns),S.cax,0,S.cm,S.gsp, maxbased); alpha(glass2,.1);
+            surfinfo(p).glass1=glass1; surfinfo(p).glass2=glass2;
+            surfinfo(p).glass1_K=glass1_K; surfinfo(p).glass2_K=glass2_K;
+        else
+            glass1=ctmr_gauss_plot_edited(meshes.Rcrtx,em(nns,:),w8s(nns),S.cax,0,S.cm,S.gsp, maxbased, surfinfo(p).glass1, surfinfo(p).glass1_K); alpha(glass1,.1);
+            glass2=ctmr_gauss_plot_edited(meshes.Lcrtx,em(nns,:),w8s(nns),S.cax,0,S.cm,S.gsp, maxbased, surfinfo(p).glass2, surfinfo(p).glass2_K); alpha(glass2,.1);
         end
-    else
+        if isfirstframe
+            plot3(em(depthch,1),em(depthch,2),em(depthch,3),'k.','markersize',10-5*(1/nch*10))
+            if ~surface.show{1}
+                plot3(em(nns,1),em(nns,2),em(nns,3),'k.','markersize',10-5*(1/nch*10));
+            end
+        end
+    elseif isfirstframe
         plot3(em(nns,1),em(nns,2),em(nns,3),'k.','markersize',10-5*(1/nch*10)) %plot electrodes
     end
-    cameratoolbar('setmode','');
-    litebrain(char(surface.view),.9);
-    wb=strcmpi(srf,'wholebrain'); 
+    if isfirstframe
+        cameratoolbar('setmode','');
+        litebrain(char(surface.view),.9);
+    end
+    wb=strcmpi(srf,'wholebrain');
     if any(wb)
         alpha(glass1,opacity(wb));
-        alpha(glass2,opacity(wb)); 
+        alpha(glass2,opacity(wb));
     end
-    if strcmpi(surface.view,'i')
-        view(90+meshes.isL*180,270); 
-    end
-    if surface.show{1}||(strcmp(surface.view,'i')&&~isempty(intersect(srf,'wholebrain'))) % messes up EC72
-        view(180,270); 
-    end %orients the "show planes" slice to a classic axial perspective
-    axis(axislim); 
-    if strcmpi(surface.view,'i')||strcmpi(surface.view,'s')||strcmpi(surface.view,'a')||strcmpi(surface.view,'p') 
-        if ~strcmpi(pt,'NO181') 
-            axis([axislim(1)*meshes.isL+10*meshes.isR axislim(2)*meshes.isR+10*meshes.isL  axislim(3:6)]); 
+    if isfirstframe
+        if strcmpi(surface.view,'i')
+            view(90+meshes.isL*180,270);
         end
+        if surface.show{1}||(strcmp(surface.view,'i')&&~isempty(intersect(srf,'wholebrain'))) % messes up EC72
+            view(180,270);
+        end %orients the "show planes" slice to a classic axial perspective
+        axis(axislim);
+        if strcmpi(surface.view,'i')||strcmpi(surface.view,'s')||strcmpi(surface.view,'a')||strcmpi(surface.view,'p')
+            if ~strcmpi(pt,'NO181')
+                axis([axislim(1)*meshes.isL+10*meshes.isR axislim(2)*meshes.isR+10*meshes.isL  axislim(3:6)]);
+            end
+        end
+        zoom(surface.zoom);
+        hold on; colormap(gca,S.cm); set(gca,'Clipping','off')
     end
-    zoom(surface.zoom);
-    hold on; colormap(gca,S.cm); set(gca,'Clipping','off')
     clear srfplot
 end
 end

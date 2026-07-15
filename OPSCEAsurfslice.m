@@ -111,8 +111,15 @@ function OPSCEAsurfslice(subject,orientation,elecs,weights,datapath,fs_dir,cax,C
     end
     
     hold on;
-    lbrn=ctmr_gauss_plot_edited(sliceinfo(j).lsplit,I.em(I.nns,:),I.w8s(I.nns),S.cax,0,S.cm,S.gsp, maxbased); 
-    rbrn=ctmr_gauss_plot_edited(sliceinfo(j).rsplit,I.em(I.nns,:),I.w8s(I.nns),S.cax,0,S.cm,S.gsp, maxbased); 
+    if isfirstframe
+        [lbrn,lbrn_K]=ctmr_gauss_plot_edited(sliceinfo(j).lsplit,I.em(I.nns,:),I.w8s(I.nns),S.cax,0,S.cm,S.gsp,maxbased);
+        [rbrn,rbrn_K]=ctmr_gauss_plot_edited(sliceinfo(j).rsplit,I.em(I.nns,:),I.w8s(I.nns),S.cax,0,S.cm,S.gsp,maxbased);
+        sliceinfo(j).lbrn_h=lbrn; sliceinfo(j).rbrn_h=rbrn;
+        sliceinfo(j).lbrn_K=lbrn_K; sliceinfo(j).rbrn_K=rbrn_K;
+    else
+        lbrn=ctmr_gauss_plot_edited(sliceinfo(j).lsplit,I.em(I.nns,:),I.w8s(I.nns),S.cax,0,S.cm,S.gsp,maxbased,sliceinfo(j).lbrn_h,sliceinfo(j).lbrn_K);
+        rbrn=ctmr_gauss_plot_edited(sliceinfo(j).rsplit,I.em(I.nns,:),I.w8s(I.nns),S.cax,0,S.cm,S.gsp,maxbased,sliceinfo(j).rbrn_h,sliceinfo(j).rbrn_K);
+    end
     
     if isfirstframe
         s=slice(vrf,sliceinfo(j).xslice,sliceinfo(j).yslice,sliceinfo(j).zslice); 
@@ -129,32 +136,44 @@ function OPSCEAsurfslice(subject,orientation,elecs,weights,datapath,fs_dir,cax,C
     %improve contrast/brightness for plotting, %otherwise can be too dark and will obscure heatmap for some patients
     bread=round(bread/loaf.normloaf*254); 
     
-    cim = toaster(sliceinfo(j).XX,sliceinfo(j).YY,sliceinfo(j).ZZ,bread,elecs,weights,[0 cax(2)],CM,gsp);
+    if isfirstframe
+        [cim,toaster_K] = toaster(sliceinfo(j).XX,sliceinfo(j).YY,sliceinfo(j).ZZ,bread,elecs,weights,[0 cax(2)],CM,gsp);
+        sliceinfo(j).toaster_K = toaster_K;
+    else
+        cim = toaster(sliceinfo(j).XX,sliceinfo(j).YY,sliceinfo(j).ZZ,bread,elecs,weights,[0 cax(2)],CM,gsp,sliceinfo(j).toaster_K);
+    end
     INPUT = uint8(cim); 
     sliceimage = padarray(INPUT,[1 1],0,'post'); %padding to appropriate size
     
     %Use the same slicing parameters to create an alphamask to make slice
-    %transparent outside of brainvolume
-    a = slice(alphamask,sliceinfo(j).xslice,sliceinfo(j).yslice,sliceinfo(j).zslice, 'nearest');
-    a.Visible = 'off';
-    AA = padarray(a.CData, [1 1],0, 'post');
-    AAnonan=AA; AAnonan(isnan(AA))=0; 
-    SE = strel('disk',2);
-    alphamap = bwareaopen(imopen(AAnonan,SE),50); 
-    
-    [xedge, yedge, zedge] = getEdges(alphamap, sliceinfo(j).XX, sliceinfo(j).YY, sliceinfo(j).ZZ);
-    sliceinfo(j).corners=[xedge fliplr(xedge);  yedge fliplr(yedge);  zedge([1 1 2 2])];   %for oblique slice planes
+    %transparent outside of brainvolume. Alphamap depends only on anatomy so
+    %compute once on first frame and cache — slice() + morphology ops are expensive.
+    if isfirstframe
+        a = slice(alphamask,sliceinfo(j).xslice,sliceinfo(j).yslice,sliceinfo(j).zslice, 'nearest');
+        a.Visible = 'off';
+        AA = padarray(a.CData, [1 1],0, 'post');
+        AAnonan=AA; AAnonan(isnan(AA))=0;
+        SE = strel('disk',2);
+        sliceinfo(j).alphamap = bwareaopen(imopen(AAnonan,SE),50);
+        [xedge, yedge, zedge] = getEdges(sliceinfo(j).alphamap, sliceinfo(j).XX, sliceinfo(j).YY, sliceinfo(j).ZZ);
+        sliceinfo(j).corners=[xedge fliplr(xedge);  yedge fliplr(yedge);  zedge([1 1 2 2])];
+    end
+    alphamap = sliceinfo(j).alphamap;
     
     %create surface in coordinate space that slices brain in the
-    %appropriate plane and apply color and transparency data
-    surface(sliceinfo(j).XX,sliceinfo(j).YY,sliceinfo(j).ZZ,'CData',sliceimage,'EdgeColor','none','FaceColor','texturemap','FaceAlpha','texturemap','EdgeAlpha',0,'AlphaData',alphamap,'specularexponent',5);
-    shading flat
-    
-    caxis(S.cax) % colormap(S.cm); 
-    alim([0.1 1])
-    set(gca,'Clipping','off')
-    axis vis3d
-    salphamask = alphamask;
+    %appropriate plane and apply color and transparency data.
+    %On first frame create the object; on subsequent frames just update CData.
+    if isfirstframe
+        sliceinfo(j).surf_h=surface(sliceinfo(j).XX,sliceinfo(j).YY,sliceinfo(j).ZZ,'CData',sliceimage,'EdgeColor','none','FaceColor','texturemap','FaceAlpha','texturemap','EdgeAlpha',0,'AlphaData',alphamap,'specularexponent',5);
+        shading flat
+        caxis(S.cax)
+        alim([0.1 1])
+        set(gca,'Clipping','off')
+        axis vis3d
+    else
+        set(sliceinfo(j).surf_h,'CData',sliceimage);
+    end
+    salphamask = alphamap;
 end
 
 function status = orientation_good(verts, m, b, orientation)
