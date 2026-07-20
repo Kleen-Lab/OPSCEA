@@ -13,7 +13,16 @@ if exist('app', 'var')
     ptpath = fullfile(opsceapath, pt); % patient's folder
     szpath = fullfile(ptpath, ptsz); % specific seizure's folder
 else
-    load(clipparams) 
+    load(clipparams)
+
+    % Older versions of EEGHILITE saved vid/baseline period fields with
+    % underscore names (vid_start/vid_end/bl_start/bl_end) instead of the
+    % vidstart/vidstop/blstart/blstop names used everywhere else. Normalize
+    % so both old and current EEGHILITE-saved clip_params.mat files work.
+    if ~exist('vidstart', 'var') && exist('vid_start', 'var'); vidstart = vid_start; end
+    if ~exist('vidstop', 'var') && exist('vid_end', 'var'); vidstop = vid_end; end
+    if ~exist('blstart', 'var') && exist('bl_start', 'var'); blstart = bl_start; end
+    if ~exist('blstop', 'var') && exist('bl_end', 'var'); blstop = bl_end; end
 
     % szpath = replace(clipparams, "/clip_params.mat", "");
     % splitpath = split(szpath, '/');
@@ -33,7 +42,11 @@ S.BLperiod=[blstart blstop];
 % transform, scaling, and display options
 % need defaults for if clip_params.mat is not fully configured yet (e.g.
 % outputs from EEGHILITE only include vidstart, vidstop, blstart, blstop)
-S.llw = llw;
+if exist('llw', 'var')
+    S.llw = llw;
+else
+    S.llw = 0.25;
+end
 
 % percentile (number >50 and <100), used here similar to gain ICEEG waveform display, usually 95
 % Note(steph): for some reason, this logic isn't working anymore so need to

@@ -119,7 +119,15 @@ end
 % TODO(steph): delete this 
 % viddir = fullfile(viddir, [pt '_' sz]);
 vidfn = [pt '_' sz];
-    vidfn=[vidfn '_' jkdatetime]
+if exist('jkdatetime', 'file')
+    vidfn=[vidfn '_' jkdatetime];
+else
+    % fallback if matlab_utilities/convenient (jkdatetime.m) isn't on the
+    % path on this machine - matches jkdatetime's own format so this
+    % doesn't fail at the last step after a full render
+    dt=char(datetime); dt([strfind(dt,'-') strfind(dt,':')])=[]; dt(strfind(dt,' '))='_';
+    vidfn=[vidfn '_' dt];
+end
 vidfilename = fullfile(viddir, vidfn);
 mkdir(viddir);
 v=VideoWriter(vidfilename,'MPEG-4');
@@ -127,4 +135,27 @@ v.FrameRate = 15;
 open(v);
 writeVideo(v,F);
 close(v);
+
+% MATLAB's VideoWriter places the moov atom (index/metadata) at the end
+% of the file rather than the start, so players have to seek to the end
+% before they can begin playback - this is very slow over a network
+% mount, and shows up as long "buffering" before a video starts playing.
+% Remux (no re-encoding, so this is fast and lossless) to move the moov
+% atom to the front ("faststart") if ffmpeg is available on this machine.
+[ffmpegStatus, ~] = system('which ffmpeg');
+if ffmpegStatus == 0
+    fullVidFile = fullfile(v.Path, v.Filename);
+    [~, vidname, vidext] = fileparts(v.Filename);
+    fastStartFile = fullfile(viddir, [vidname '_faststart' vidext]);
+    remuxCmd = sprintf('ffmpeg -y -loglevel error -i "%s" -c copy -movflags +faststart "%s"', fullVidFile, fastStartFile);
+    remuxStatus = system(remuxCmd);
+    if remuxStatus == 0
+        movefile(fastStartFile, fullVidFile);
+    else
+        warning('OPSCEA:faststartRemuxFailed', 'ffmpeg faststart remux failed; video was saved but may buffer/lag on playback.');
+        if exist(fastStartFile, 'file'); delete(fastStartFile); end
+    end
+else
+    warning('OPSCEA:ffmpegNotFound', 'ffmpeg not found on this machine; video was saved but may buffer/lag on playback (moov atom not moved to front). Install ffmpeg to fix this automatically.');
+end
 end
