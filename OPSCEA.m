@@ -110,9 +110,9 @@ end
 %if showlabels; vidfilename=[ptsz '_video']; else vidfilename=[num2str(str2num(pt(3:end))*11) '_' sz]; end
 
 if test
-    viddir = fullfile(datapath, 'opscea', 'ictal_cinema_library', pt, 'test');
+    viddir = fullfile(datapath, 'ictal_cinema_library', pt, 'test');
 else
-    viddir = fullfile(datapath, 'opscea', 'ictal_cinema_library', pt);
+    viddir = fullfile(datapath, 'ictal_cinema_library', pt);
 end
 
 % viddir='~/Desktop/test_opscea';
