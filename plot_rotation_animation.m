@@ -3,6 +3,11 @@ function [F,f] = plot_rotation_animation(f,tiles,sliceinfo)
 %all slices from inferior view and rotate slowly to usual head-on view
 
 numrotationframes=15;
+% Patients with no depth electrodes (tiles.depth empty) skip the block below
+% entirely, so F must be initialized here to always be assigned. Must be a
+% typed empty struct array (matching getframe/capture_frame's cdata/colormap
+% fields), not [], since F(f)=capture_frame(...) later inserts frame structs.
+F=struct('cdata',{},'colormap',{});
 if height(tiles.depth) > 0
     offset = 2 + height(tiles.surface);
     % Depths with no valid (non-bad) channels are skipped by plot_depths.m
