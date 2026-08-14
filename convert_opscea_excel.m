@@ -116,9 +116,32 @@ for row = 1:nclips
     spstops = [ecog.stop; cb.stop; surface.stop; depth.stop];
     widths = spstops - spstarts + 1;
     [~, d] = rat(widths./spcols);
-    layout.rows = max(lcm(sprows, sprows(end)));
+    % True LCM across all values, not just each paired against the last
+    % entry - lcm(x, x(end)) only combines each value with the last one, so
+    % it misses cases where two OTHER values (e.g. 5 and 4) need to combine
+    % with each other too. That under-count produces a layout.rows/cols not
+    % evenly divisible by every plot's row/col count, giving fractional
+    % nexttile spans (e.g. 3.75) that crash with "must be a two element
+    % vector of integers less than intmax."
+    layout.rows = sprows(1);
+    for k = 2:numel(sprows)
+        layout.rows = lcm(layout.rows, sprows(k));
+    end
+    % layout.cols must be a multiple of the RAW spcols values (not just the
+    % reduced-fraction denominators d), since convert_subplot_to_nexttile
+    % divides layout.cols directly by plot.col (col_ratio = layout.cols/
+    % plot.col) when computing each item's tile position. A d-only multiple
+    % doesn't guarantee that division is an integer, which can leave the
+    % *tile* index fractional even when rows/cols spans are already fixed.
+    % Every d(i) is guaranteed to divide its corresponding spcols(i) (d is
+    % width_orig/plot.col in lowest terms, so its denominator always divides
+    % the original denominator plot.col), so a true LCM of spcols alone is
+    % sufficient - d no longer needs to factor into this computation.
     try
-        layout.cols = max(lcm(d, d(end)));
+        layout.cols = spcols(1);
+        for k = 2:numel(spcols)
+            layout.cols = lcm(layout.cols, spcols(k));
+        end
     catch ME
         rethrow(ME);
     end

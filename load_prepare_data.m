@@ -17,10 +17,19 @@ disp(['Total length of ICEEG data: ' num2str(round(ntp/sfx)) ' sec'])
 disp(['Length of data to play for video: ' num2str(diff(S.VIDperiod)) ' sec'])
 
 if ~islogical(badch) %convert numeric bad channel index to logical index matching number of channels in data
-    badch_idx=false(size(d,1),1); 
-    badch_idx(badch)=true;
-    badch=badch_idx; 
-    clear badch_idx
+    if numel(badch) == size(d,1) && all(ismember(badch, [0 1]))
+        % Some saved badch files already store a full-length 0/1 mask as
+        % double instead of logical, rather than a short list of specific
+        % bad-channel index numbers. Cast it directly - treating its
+        % values as indices below would error on any 0 entry (not a valid
+        % array index).
+        badch = logical(badch);
+    else
+        badch_idx=false(size(d,1),1);
+        badch_idx(badch)=true;
+        badch=badch_idx;
+        clear badch_idx
+    end
 end
 
 % error checks for selected time periods
