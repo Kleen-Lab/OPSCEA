@@ -5,6 +5,19 @@ global loaf;
 
 dataloaded=~isempty(LL) || ~isempty(d); 
 
+% Make sure the current figure has a layout matching the configured grid.
+% OPSCEA creates it before the frame loop, but the app's preview callbacks
+% open a bare figure, and nexttile would then auto-build a 'flow' layout whose
+% grid size ignores tiles.layout, throwing off every tile index and span.
+if isfirstframe
+    fig = gcf;
+    t = findobj(fig.Children, 'flat', '-isa', 'matlab.graphics.layout.TiledChartLayout');
+    if isempty(t) || ~isequal(t(1).GridSize, [tiles.layout.rows tiles.layout.cols])
+        clf(fig);
+        tiledlayout(fig, tiles.layout.rows, tiles.layout.cols);
+    end
+end
+
 %subplot(1,1,1); %clears all axes, to start fresh each frame
 
 if dataloaded
