@@ -43,62 +43,34 @@ function split = splitbrain(cortex,orientation,b, m)
     %     for intracranial seizure localization. In press at Epilepsia.”
     
     
-    %mind the gap (in mm): prevents triangles that span the gap from inducing unwanted mesh
-    thegap = max([abs(5.*m) 10]);
-    
-    % NOTE; occasionally produces unwanted side effects for certain
-    % slices where a physical gap is inserted between the slice and cortex.
-    % Adjusting thegap can help for individual cases but will need a more 
-    % unified solution in a future iteration of OPSCEA software.
-    % -------------------------------------------------------------------
-    
-    if strcmp(orientation, 'c')
-        if (min(cortex.cortex.vert(:,2)) < b) && (b < max(cortex.cortex.vert(:,2)))
-            [idx, ~] = sort(find(abs((cortex.cortex.vert(:,2) - (m.*cortex.cortex.vert(:,1) + b + thegap))) <= thegap)); 
-            % get indices of verts with y between (mx + b) and (mx + b + 2*thegap)
-        else 
-            % This means intercept lies outside A-P extent of the mesh
-            disp('Intercept lies outside A-P extent of the mesh');
-            [idx, ~] = sort(find(abs((cortex.cortex.vert(:,2) - (m.*cortex.cortex.vert(:,1) + b + thegap))+2*thegap)<=thegap));
-        end
-        
-    elseif strcmp(orientation, 'a')
-        if (min(cortex.cortex.vert(:,3)) < b) && (b < max(cortex.cortex.vert(:,3)))
-            [idx, ~] = sort(find(abs((cortex.cortex.vert(:,3) - (m.*cortex.cortex.vert(:,1) + b - thegap))) <= thegap)); 
-            % get indices of verts with z between (mx + b - 2*thegap) and (mx + b)
-        else 
-            % This means intercept lies outside S-I extent of the mesh
-            disp('Intercept lies outside S-I extent of the mesh');
-            [idx, ~] = sort(find(abs((cortex.cortex.vert(:,3)-(m.*cortex.cortex.vert(:,1) + b + thegap))+2*thegap)<=thegap));
-        end
-    
-    elseif strcmp(orientation, 's')
-        [idx, ~] = sort(find(abs((cortex.cortex.vert(:,2) - (m.*cortex.cortex.vert(:,1) + b - thegap))) <= thegap)); 
-        % get indices of verts with y between (mx + b - 2*thegap) and (mx + b)
-    
-    elseif strcmp(orientation, 'oc')
-        [idx, ~] = sort(find(abs((cortex.cortex.vert(:,3) - (m.*cortex.cortex.vert(:,2) + b + thegap))) <= thegap)); 
-        % get indices of verts with z between (my + b + 2*thegap) and (my + b)
-    end
-    
-    if isempty(idx)
-        split.vert = cortex.cortex.vert;
-        split.tri = cortex.cortex.tri;
-    else
-        mesh.tri = delete_verts(cortex.cortex.tri, idx);        
-        mesh.vert = cortex.cortex.vert;
-    
-        disp('Generating partial mesh for slice view...')
-        FVout = splitFV(mesh.tri,mesh.vert);
-        fv.vert = FVout(1).vertices;
-        fv.tri = FVout(1).faces;
-        split = fv;
-    end
-end
+    % Clip every face directly against the cut plane (m,b) rather than
+    % deleting a vertex band near the line and trusting splitFV's
+    % connected-component enumeration order to hand back the correct half.
+    % That topological approach could silently return an arbitrary
+    % component - including one made up entirely of wrong-side geometry
+    % (e.g. an unsliced contralateral hemisphere overlaying the slice) -
+    % since component ordering has no relationship to which side of the
+    % plane a piece is on. Testing each face's centroid against the same
+    % plane equation used by orientation_good() guarantees every
+    % remaining face is genuinely on the correct side, regardless of mesh
+    % topology, gaps, or how many disconnected pieces the cut produces.
+    vert = cortex.cortex.vert;
+    tri = cortex.cortex.tri;
+    faceCentroids = (vert(tri(:,1),:) + vert(tri(:,2),:) + vert(tri(:,3),:)) / 3;
+    x = faceCentroids(:,1); y = faceCentroids(:,2); z = faceCentroids(:,3);
 
-function tri = delete_verts(tri, idx)
-    while(~isempty(intersect(tri(:,2), idx)))
-        [~,ia2,~] = intersect(tri(:,2), idx); %looks for the tris that match the indices of the verts on the line
-        tri(ia2,:) = []; %remove the tris from the mesh dataset that have already been counted
+    if strcmp(orientation, 'c')
+        keep = y < (m.*x + b);
+    elseif strcmp(orientation, 'a')
+        keep = z > (m.*x + b);
+    elseif strcmp(orientation, 's')
+        keep = x > (y - b)./m;
+    elseif strcmp(orientation, 'oc')
+        keep = y < (z - b)./m;
+    else
+        keep = z > (m.*x + b); % default to 'a' behavior
     end
+
+    split.vert = vert;
+    split.tri = tri(keep, :);
 end

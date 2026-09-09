@@ -104,13 +104,11 @@ function OPSCEAsurfslice(subject,orientation,elecs,weights,datapath,fs_dir,cax,C
         %only one segment so that the sliceplane is still visible
         sliceinfo(j).lsplit = splitbrain(loaf.lpial,orientation,b,m);
         sliceinfo(j).rsplit = splitbrain(loaf.rpial,orientation,b,m);
-        if ~orientation_good(sliceinfo(j).lsplit.vert, m, b, orientation) || ~orientation_good(sliceinfo(j).rsplit.vert, m, b, orientation)
-            azel = azel + 180;
-        end
         sliceinfo(j).azel=[azel,0]; % head-on angle minues 20 degrees for each slice to add perspective
     end
     
     hold on;
+    % if isfirstframe && any(~strcmpi(pt,{'EC283','EC284'}))
     if isfirstframe
         [lbrn,lbrn_K]=ctmr_gauss_plot_edited(sliceinfo(j).lsplit,I.em(I.nns,:),I.w8s(I.nns),S.cax,0,S.cm,S.gsp,maxbased);
         [rbrn,rbrn_K]=ctmr_gauss_plot_edited(sliceinfo(j).rsplit,I.em(I.nns,:),I.w8s(I.nns),S.cax,0,S.cm,S.gsp,maxbased);
@@ -174,35 +172,4 @@ function OPSCEAsurfslice(subject,orientation,elecs,weights,datapath,fs_dir,cax,C
         set(sliceinfo(j).surf_h,'CData',sliceimage);
     end
     salphamask = alphamap;
-end
-
-function status = orientation_good(verts, m, b, orientation)
-    % check that the chunk we're choosing is on the right (correct) side
-    % of the line.
-    % returns 1 if the orientation is good, 0 otherwise
-    
-    status = 0;
-    centroid = mean(verts);
-    
-    if strcmp(orientation, 'c') && centroid(2) < m*centroid(1) + b
-        % for coronal cut want to choose the part behind the plane (we're
-        % looking back) so we want centroid below the line
-        status = 1;
-    elseif strcmp(orientation, 'a') && centroid(3) > m*centroid(1) + b
-        % for axial cut we want to choose the part above the plane
-        % (we're looking up) so we want centroid above the line
-        status = 1;
-    elseif strcmp(orientation, 's') && centroid(1) > (centroid(2) - b)/m
-        % for sagittal cut we want the part to the right of the plane
-        % (we're looking to the right)
-        status = 1;
-    elseif strcmp(orientation, 'oc') && centroid(2) < (centroid(3) - b)/m
-        % for oblique coronal cut we want the part to the right of the
-        % plane when viewed from the side (i.e. the posterior part)
-        status = 1;
-    elseif strcmp(orientation, 'c') && centroid(2) < (centroid(3) - b)/m
-        % for oblique coronal cut we want the part to the right of the
-        % plane when viewed from the side (i.e. the posterior part)
-        status = 1;
-    end
 end
